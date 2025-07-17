@@ -54,7 +54,17 @@ export default function Personas() {
     setIsLoading(true);
 
     try {
-      const newPersona = localStorageService.savePersona(formData);
+      const newPersona = localStorageService.savePersona({
+        nome: formData.nome,
+        idade: parseInt(formData.idade),
+        profissao: formData.profissao,
+        marca_id: "",
+        descricao: `${formData.profissao} de ${formData.idade} anos`,
+        objetivos: formData.objetivos.split(',').map(o => o.trim()),
+        dores: formData.dores.split(',').map(d => d.trim()),
+        comportamentos: formData.comportamento_digital.split(',').map(c => c.trim()),
+        canais_preferidos: formData.plataformas_preferidas.split(',').map(p => p.trim()),
+      });
       setPersonas(prev => [...prev, newPersona]);
       
       // Reset form
@@ -274,8 +284,8 @@ export default function Personas() {
                     </div>
                     <div>
                       <CardTitle className="text-lg">{persona.nome}</CardTitle>
-                      <Badge variant="secondary" className="text-xs">
-                        {persona.idade}
+                     <Badge variant="secondary" className="text-xs">
+                        {persona.idade} anos
                       </Badge>
                     </div>
                   </div>
@@ -290,29 +300,18 @@ export default function Personas() {
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="space-y-2">
-                  <div className="text-sm">
-                    <span className="font-medium">Profissão:</span> {persona.profissao}
-                  </div>
-                  {persona.localizacao && (
-                    <div className="text-sm">
-                      <span className="font-medium">Local:</span> {persona.localizacao}
-                    </div>
-                  )}
-                  {persona.interesses && (
-                    <div className="text-sm">
-                      <span className="font-medium">Interesses:</span> {persona.interesses}
-                    </div>
-                  )}
-                  {persona.plataformas_preferidas && (
-                    <div className="text-sm">
-                      <span className="font-medium">Plataformas:</span> {persona.plataformas_preferidas}
-                    </div>
-                  )}
-                  {persona.renda && (
-                    <Badge variant="outline" className="text-xs mt-2">
-                      {persona.renda}
-                    </Badge>
-                  )}
+                   <div className="text-sm">
+                     <span className="font-medium">Profissão:</span> {persona.profissao}
+                   </div>
+                   <div className="text-sm">
+                     <span className="font-medium">Objetivos:</span> {persona.objetivos.join(', ')}
+                   </div>
+                   <div className="text-sm">
+                     <span className="font-medium">Dores:</span> {persona.dores.join(', ')}
+                   </div>
+                   <div className="text-sm">
+                     <span className="font-medium">Canais:</span> {persona.canais_preferidos.join(', ')}
+                   </div>
                 </div>
               </CardContent>
             </Card>

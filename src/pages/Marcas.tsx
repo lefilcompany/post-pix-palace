@@ -53,7 +53,18 @@ export default function Marcas() {
     setIsLoading(true);
 
     try {
-      const newBrand = localStorageService.saveBrand(formData);
+      const newBrand = localStorageService.saveBrand({
+        nome: formData.nome,
+        descricao: formData.descricao,
+        setor: formData.setor,
+        publico_alvo: formData.publico_alvo,
+        tom_voz: formData.tom_voz,
+        valores: formData.valores.split(',').map(v => v.trim()),
+        cores_primarias: [formData.cor_primaria],
+        cores_secundarias: [formData.cor_secundaria],
+        tipografia: "Arial",
+        estilo_visual: "Moderno",
+      });
       setBrands(prev => [...prev, newBrand]);
       
       // Reset form
@@ -279,7 +290,7 @@ export default function Marcas() {
                   <div className="flex items-center gap-3">
                     <div 
                       className="h-10 w-10 rounded-lg flex items-center justify-center"
-                      style={{ backgroundColor: brand.cor_primaria }}
+                      style={{ backgroundColor: brand.cores_primarias[0] }}
                     >
                       <Building className="h-5 w-5 text-white" />
                     </div>
@@ -317,11 +328,11 @@ export default function Marcas() {
                   <div className="flex items-center gap-2 mt-3">
                     <div 
                       className="h-4 w-4 rounded-full border"
-                      style={{ backgroundColor: brand.cor_primaria }}
+                      style={{ backgroundColor: brand.cores_primarias[0] }}
                     />
                     <div 
                       className="h-4 w-4 rounded-full border"
-                      style={{ backgroundColor: brand.cor_secundaria }}
+                      style={{ backgroundColor: brand.cores_secundarias[0] }}
                     />
                   </div>
                 </div>
