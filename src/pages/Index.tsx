@@ -1,7 +1,7 @@
-import PostGenerator from "./PostGenerator";
+import Dashboard from "./Dashboard";
 
 const Index = () => {
-  return <PostGenerator />;
+  return <Dashboard />;
 };
 
 export default Index;

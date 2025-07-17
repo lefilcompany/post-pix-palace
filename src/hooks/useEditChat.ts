@@ -9,16 +9,23 @@ interface Message {
   timestamp: Date;
 }
 
+interface PostData {
+  title: string;
+  content: string;
+  platform: string;
+  tone: string;
+  keywords: string[];
+  style?: string;
+  targetAudience?: string;
+  brandPersonality?: string;
+  colorScheme?: string;
+  callToAction?: string;
+}
+
 interface UseEditChatProps {
   openAIService: OpenAIService;
   currentImageUrl: string;
-  postData: {
-    title: string;
-    content: string;
-    platform: string;
-    tone: string;
-    keywords: string[];
-  };
+  postData: PostData;
 }
 
 export function useEditChat({ openAIService, currentImageUrl, postData }: UseEditChatProps) {
@@ -47,8 +54,22 @@ export function useEditChat({ openAIService, currentImageUrl, postData }: UseEdi
     setIsLoading(true);
 
     try {
-      // Gerar resposta do chat
-      const context = `Post: ${postData.title}\nConteúdo: ${postData.content}\nPlataforma: ${postData.platform}\nTom: ${postData.tone}\nPalavras-chave: ${postData.keywords.join(', ')}`;
+      // Gerar resposta do chat com contexto completo do formulário
+      const context = `
+CONTEXTO DO POST ORIGINAL:
+- Título: ${postData.title}
+- Conteúdo: ${postData.content}
+- Plataforma: ${postData.platform}
+- Tom: ${postData.tone}
+- Palavras-chave: ${postData.keywords.join(', ')}
+${postData.style ? `- Estilo: ${postData.style}` : ''}
+${postData.targetAudience ? `- Público-alvo: ${postData.targetAudience}` : ''}
+${postData.brandPersonality ? `- Personalidade da marca: ${postData.brandPersonality}` : ''}
+${postData.colorScheme ? `- Esquema de cores: ${postData.colorScheme}` : ''}
+${postData.callToAction ? `- Call to Action: ${postData.callToAction}` : ''}
+
+IMPORTANTE: Lembre-se sempre dessas informações ao sugerir edições na imagem. Mantenha a coerência com o conceito original do post.`;
+      
       const chatResponse = await openAIService.generateChatResponse(userMessage, context);
       
       const assistantMessage: Message = {
