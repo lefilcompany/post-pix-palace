@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import Dashboard from "./pages/Dashboard";
+import CriarConteudo from "./pages/CriarConteudo";
+import VisualizarConteudo from "./pages/VisualizarConteudo";
 import CriarTema from "./pages/CriarTema";
 import CriarPersona from "./pages/CriarPersona";
 import CriarMarca from "./pages/CriarMarca";
@@ -21,6 +24,8 @@ const App = () => (
         <Layout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/criar-conteudo" element={<CriarConteudo />} />
+            <Route path="/conteudo/:id" element={<VisualizarConteudo />} />
             <Route path="/criar-tema" element={<CriarTema />} />
             <Route path="/criar-persona" element={<CriarPersona />} />
             <Route path="/criar-marca" element={<CriarMarca />} />
