@@ -1,4 +1,4 @@
-import { BarChart3, Users, Palette, Building } from "lucide-react";
+import { Home, Users, Palette, Building, Plus } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
 import {
@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/sidebar";
 
 const navigationItems = [
-  { title: "Dashboard", url: "/", icon: BarChart3 },
+  { title: "Home", url: "/", icon: Home },
+  { title: "Criar Conteúdo", url: "/criar-conteudo", icon: Plus },
   { title: "Criar Tema", url: "/criar-tema", icon: Palette },
   { title: "Criar Persona", url: "/criar-persona", icon: Users },
   { title: "Criar Marca", url: "/criar-marca", icon: Building },

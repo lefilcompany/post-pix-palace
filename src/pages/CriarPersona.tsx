@@ -8,67 +8,87 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Users, Save, Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function CriarPersona() {
   const [persona, setPersona] = useState({
     nome: "",
     idade: "",
+    genero: "",
     ocupacao: "",
     localizacao: "",
     bio: "",
     interesses: [] as string[],
-    doresPontos: [] as string[],
-    objetivos: [] as string[],
-    plataformasPreferidas: [] as string[],
-    comportamento: "",
-    personalidade: "",
+    habitos: "",
+    objetivos: "",
+    desafios: "",
   });
 
   const [novoInteresse, setNovoInteresse] = useState("");
-  const [novaDor, setNovaDor] = useState("");
-  const [novoObjetivo, setNovoObjetivo] = useState("");
-  const [novaPlataforma, setNovaPlataforma] = useState("");
 
-  const adicionarItem = (tipo: string, valor: string, setter: (value: string) => void) => {
-    if (valor.trim() && !persona[tipo as keyof typeof persona].includes(valor.trim())) {
+  const adicionarInteresse = () => {
+    if (novoInteresse.trim() && !persona.interesses.includes(novoInteresse.trim())) {
       setPersona(prev => ({
         ...prev,
-        [tipo]: [...(prev[tipo as keyof typeof persona] as string[]), valor.trim()]
+        interesses: [...prev.interesses, novoInteresse.trim()]
       }));
-      setter("");
+      setNovoInteresse("");
     }
   };
 
-  const removerItem = (tipo: string, item: string) => {
+  const removerInteresse = (interesse: string) => {
     setPersona(prev => ({
       ...prev,
-      [tipo]: (prev[tipo as keyof typeof persona] as string[]).filter(i => i !== item)
+      interesses: prev.interesses.filter(i => i !== interesse)
     }));
   };
 
-  const salvarPersona = () => {
+  const salvarPersona = async () => {
     if (!persona.nome || !persona.ocupacao || !persona.bio) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
 
-    // Aqui você salvaria a persona no backend
-    toast.success("Persona criada com sucesso!");
-    
-    // Reset form
-    setPersona({
-      nome: "",
-      idade: "",
-      ocupacao: "",
-      localizacao: "",
-      bio: "",
-      interesses: [],
-      doresPontos: [],
-      objetivos: [],
-      plataformasPreferidas: [],
-      comportamento: "",
-      personalidade: "",
-    });
+    try {
+      const { error } = await supabase
+        .from('Persona')
+        .insert({
+          brandId: 1, // Temporário
+          teamId: 1, // Temporário
+          name: persona.nome,
+          gender: persona.genero,
+          age: persona.idade,
+          location: persona.localizacao,
+          positionDegree: persona.ocupacao,
+          hobbies: persona.interesses.join(", "),
+          consumeHabit: persona.habitos,
+          goals: persona.objetivos,
+          challenge: persona.desafios,
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success("Persona criada com sucesso!");
+      
+      // Reset form
+      setPersona({
+        nome: "",
+        idade: "",
+        genero: "",
+        ocupacao: "",
+        localizacao: "",
+        bio: "",
+        interesses: [],
+        habitos: "",
+        objetivos: "",
+        desafios: "",
+      });
+    } catch (error) {
+      console.error("Erro ao criar persona:", error);
+      toast.error("Erro ao criar persona. Tente novamente.");
+    }
   };
 
   return (
@@ -81,7 +101,7 @@ export default function CriarPersona() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Informações Básicas */}
         <Card className="border-border/40">
           <CardHeader>
@@ -101,14 +121,33 @@ export default function CriarPersona() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="idade">Idade</Label>
-              <Input
-                id="idade"
-                value={persona.idade}
-                onChange={(e) => setPersona(prev => ({ ...prev, idade: e.target.value }))}
-                placeholder="Ex: 28 anos"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="idade">Idade</Label>
+                <Input
+                  id="idade"
+                  value={persona.idade}
+                  onChange={(e) => setPersona(prev => ({ ...prev, idade: e.target.value }))}
+                  placeholder="Ex: 28 anos"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="genero">Gênero</Label>
+                <Select 
+                  value={persona.genero} 
+                  onValueChange={(value) => setPersona(prev => ({ ...prev, genero: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="feminino">Feminino</SelectItem>
+                    <SelectItem value="masculino">Masculino</SelectItem>
+                    <SelectItem value="outro">Outro</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -141,6 +180,17 @@ export default function CriarPersona() {
                 rows={4}
               />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="habitos">Hábitos de Consumo</Label>
+              <Textarea
+                id="habitos"
+                value={persona.habitos}
+                onChange={(e) => setPersona(prev => ({ ...prev, habitos: e.target.value }))}
+                placeholder="Como consome conteúdo e produtos?"
+                rows={3}
+              />
+            </div>
           </CardContent>
         </Card>
 
@@ -154,16 +204,16 @@ export default function CriarPersona() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Interesses</Label>
+              <Label>Interesses/Hobbies</Label>
               <div className="flex gap-2">
                 <Input
                   value={novoInteresse}
                   onChange={(e) => setNovoInteresse(e.target.value)}
                   placeholder="Adicionar interesse"
-                  onKeyPress={(e) => e.key === 'Enter' && adicionarItem('interesses', novoInteresse, setNovoInteresse)}
+                  onKeyPress={(e) => e.key === 'Enter' && adicionarInteresse()}
                 />
                 <Button 
-                  onClick={() => adicionarItem('interesses', novoInteresse, setNovoInteresse)} 
+                  onClick={adicionarInteresse} 
                   size="icon" 
                   variant="outline"
                 >
@@ -178,7 +228,7 @@ export default function CriarPersona() {
                       size="sm"
                       variant="ghost"
                       className="h-4 w-4 p-0 hover:bg-destructive/20"
-                      onClick={() => removerItem('interesses', interesse)}
+                      onClick={() => removerInteresse(interesse)}
                     >
                       <X className="h-3 w-3" />
                     </Button>
@@ -188,154 +238,25 @@ export default function CriarPersona() {
             </div>
 
             <div className="space-y-2">
-              <Label>Dores e Pontos de Tensão</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={novaDor}
-                  onChange={(e) => setNovaDor(e.target.value)}
-                  placeholder="Adicionar dor/problema"
-                  onKeyPress={(e) => e.key === 'Enter' && adicionarItem('doresPontos', novaDor, setNovaDor)}
-                />
-                <Button 
-                  onClick={() => adicionarItem('doresPontos', novaDor, setNovaDor)} 
-                  size="icon" 
-                  variant="outline"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {persona.doresPontos.map((dor, index) => (
-                  <Badge key={index} variant="destructive" className="gap-1">
-                    {dor}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-4 w-4 p-0 hover:bg-destructive/40"
-                      onClick={() => removerItem('doresPontos', dor)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </Badge>
-                ))}
-              </div>
+              <Label htmlFor="objetivos">Objetivos</Label>
+              <Textarea
+                id="objetivos"
+                value={persona.objetivos}
+                onChange={(e) => setPersona(prev => ({ ...prev, objetivos: e.target.value }))}
+                placeholder="Quais são os objetivos da persona?"
+                rows={3}
+              />
             </div>
 
             <div className="space-y-2">
-              <Label>Objetivos</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={novoObjetivo}
-                  onChange={(e) => setNovoObjetivo(e.target.value)}
-                  placeholder="Adicionar objetivo"
-                  onKeyPress={(e) => e.key === 'Enter' && adicionarItem('objetivos', novoObjetivo, setNovoObjetivo)}
-                />
-                <Button 
-                  onClick={() => adicionarItem('objetivos', novoObjetivo, setNovoObjetivo)} 
-                  size="icon" 
-                  variant="outline"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {persona.objetivos.map((objetivo, index) => (
-                  <Badge key={index} variant="default" className="gap-1">
-                    {objetivo}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-4 w-4 p-0 hover:bg-destructive/20"
-                      onClick={() => removerItem('objetivos', objetivo)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="comportamento">Comportamento Online</Label>
-              <Select 
-                value={persona.comportamento} 
-                onValueChange={(value) => setPersona(prev => ({ ...prev, comportamento: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Como se comporta online?" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ativo">Muito Ativo</SelectItem>
-                  <SelectItem value="moderado">Moderadamente Ativo</SelectItem>
-                  <SelectItem value="passivo">Passivo (lurker)</SelectItem>
-                  <SelectItem value="esporadico">Esporádico</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="personalidade">Personalidade</Label>
-              <Select 
-                value={persona.personalidade} 
-                onValueChange={(value) => setPersona(prev => ({ ...prev, personalidade: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Tipo de personalidade" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="extrovertido">Extrovertido</SelectItem>
-                  <SelectItem value="introvertido">Introvertido</SelectItem>
-                  <SelectItem value="analitico">Analítico</SelectItem>
-                  <SelectItem value="criativo">Criativo</SelectItem>
-                  <SelectItem value="pragmatico">Pragmático</SelectItem>
-                  <SelectItem value="emocional">Emocional</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Plataformas e Preview */}
-        <Card className="border-border/40">
-          <CardHeader>
-            <CardTitle>Plataformas Digitais</CardTitle>
-            <CardDescription>
-              Onde a persona está presente
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Plataformas Preferidas</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={novaPlataforma}
-                  onChange={(e) => setNovaPlataforma(e.target.value)}
-                  placeholder="Ex: Instagram"
-                  onKeyPress={(e) => e.key === 'Enter' && adicionarItem('plataformasPreferidas', novaPlataforma, setNovaPlataforma)}
-                />
-                <Button 
-                  onClick={() => adicionarItem('plataformasPreferidas', novaPlataforma, setNovaPlataforma)} 
-                  size="icon" 
-                  variant="outline"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {persona.plataformasPreferidas.map((plataforma, index) => (
-                  <Badge key={index} variant="outline" className="gap-1">
-                    {plataforma}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-4 w-4 p-0 hover:bg-destructive/20"
-                      onClick={() => removerItem('plataformasPreferidas', plataforma)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </Badge>
-                ))}
-              </div>
+              <Label htmlFor="desafios">Desafios</Label>
+              <Textarea
+                id="desafios"
+                value={persona.desafios}
+                onChange={(e) => setPersona(prev => ({ ...prev, desafios: e.target.value }))}
+                placeholder="Quais são os principais desafios?"
+                rows={3}
+              />
             </div>
 
             {/* Preview da Persona */}
@@ -344,10 +265,12 @@ export default function CriarPersona() {
               <div className="space-y-2 text-sm">
                 <div><strong>Nome:</strong> {persona.nome || "Não definido"}</div>
                 {persona.idade && <div><strong>Idade:</strong> {persona.idade}</div>}
+                {persona.genero && <div><strong>Gênero:</strong> {persona.genero}</div>}
                 {persona.ocupacao && <div><strong>Ocupação:</strong> {persona.ocupacao}</div>}
                 {persona.localizacao && <div><strong>Local:</strong> {persona.localizacao}</div>}
-                {persona.personalidade && <div><strong>Personalidade:</strong> {persona.personalidade}</div>}
-                {persona.comportamento && <div><strong>Comportamento:</strong> {persona.comportamento}</div>}
+                {persona.interesses.length > 0 && (
+                  <div><strong>Interesses:</strong> {persona.interesses.join(", ")}</div>
+                )}
               </div>
             </div>
 

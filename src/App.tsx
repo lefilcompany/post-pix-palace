@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import CriarTema from "./pages/CriarTema";
 import CriarPersona from "./pages/CriarPersona";
 import CriarMarca from "./pages/CriarMarca";
+import CriarConteudo from "./pages/CriarConteudo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,7 @@ const App = () => (
         <Layout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/criar-conteudo" element={<CriarConteudo />} />
             <Route path="/criar-tema" element={<CriarTema />} />
             <Route path="/criar-persona" element={<CriarPersona />} />
             <Route path="/criar-marca" element={<CriarMarca />} />

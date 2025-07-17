@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Palette, Save, Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function CriarTema() {
   const [tema, setTema] = useState({
@@ -18,6 +19,10 @@ export default function CriarTema() {
     corSecundaria: "#6366f1",
     estilo: "",
     palavrasChave: [] as string[],
+    universeTarget: "",
+    objectives: "",
+    addInfo: "",
+    voiceAI: "",
   });
 
   const [novaPalavra, setNovaPalavra] = useState("");
@@ -39,25 +44,52 @@ export default function CriarTema() {
     }));
   };
 
-  const salvarTema = () => {
+  const salvarTema = async () => {
     if (!tema.nome || !tema.descricao || !tema.categoria) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
 
-    // Aqui você salvaria o tema no backend
-    toast.success("Tema criado com sucesso!");
-    
-    // Reset form
-    setTema({
-      nome: "",
-      descricao: "",
-      categoria: "",
-      corPrimaria: "#3b82f6",
-      corSecundaria: "#6366f1",
-      estilo: "",
-      palavrasChave: [],
-    });
+    try {
+      const { error } = await supabase
+        .from('Theme')
+        .insert({
+          brandId: 1, // Temporário
+          teamId: 1, // Temporário
+          title: tema.nome,
+          description: tema.descricao,
+          colors: `${tema.corPrimaria}, ${tema.corSecundaria}`,
+          voiceAI: tema.voiceAI || tema.categoria,
+          universeTarget: tema.universeTarget || "Geral",
+          hashtags: tema.palavrasChave.join(", "),
+          objectives: tema.objectives || "Criar conteúdo visual atrativo",
+          addInfo: tema.addInfo || `Estilo: ${tema.estilo}`,
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success("Tema criado com sucesso!");
+      
+      // Reset form
+      setTema({
+        nome: "",
+        descricao: "",
+        categoria: "",
+        corPrimaria: "#3b82f6",
+        corSecundaria: "#6366f1",
+        estilo: "",
+        palavrasChave: [],
+        universeTarget: "",
+        objectives: "",
+        addInfo: "",
+        voiceAI: "",
+      });
+    } catch (error) {
+      console.error("Erro ao criar tema:", error);
+      toast.error("Erro ao criar tema. Tente novamente.");
+    }
   };
 
   return (
@@ -66,7 +98,7 @@ export default function CriarTema() {
         <Palette className="h-8 w-8 text-primary" />
         <div>
           <h1 className="text-3xl font-bold text-foreground">Criar Tema</h1>
-          <p className="text-muted-foreground">Defina temas visuais para seus posts</p>
+          <p className="text-muted-foreground">Defina temas visuais para seus conteúdos</p>
         </div>
       </div>
 
@@ -118,6 +150,27 @@ export default function CriarTema() {
                 onChange={(e) => setTema(prev => ({ ...prev, descricao: e.target.value }))}
                 placeholder="Descreva o estilo e características do tema"
                 rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="universeTarget">Universo Target</Label>
+              <Input
+                id="universeTarget"
+                value={tema.universeTarget}
+                onChange={(e) => setTema(prev => ({ ...prev, universeTarget: e.target.value }))}
+                placeholder="Ex: Jovens adultos, Profissionais de tecnologia"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="objectives">Objetivos</Label>
+              <Textarea
+                id="objectives"
+                value={tema.objectives}
+                onChange={(e) => setTema(prev => ({ ...prev, objectives: e.target.value }))}
+                placeholder="Quais são os objetivos deste tema?"
+                rows={2}
               />
             </div>
 
@@ -179,7 +232,7 @@ export default function CriarTema() {
             </div>
 
             <div className="space-y-2">
-              <Label>Palavras-chave</Label>
+              <Label>Palavras-chave (Hashtags)</Label>
               <div className="flex gap-2">
                 <Input
                   value={novaPalavra}
@@ -206,6 +259,17 @@ export default function CriarTema() {
                   </Badge>
                 ))}
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="addInfo">Informações Adicionais</Label>
+              <Textarea
+                id="addInfo"
+                value={tema.addInfo}
+                onChange={(e) => setTema(prev => ({ ...prev, addInfo: e.target.value }))}
+                placeholder="Informações extras sobre o tema"
+                rows={2}
+              />
             </div>
 
             <Button onClick={salvarTema} className="w-full">
@@ -242,6 +306,9 @@ export default function CriarTema() {
               </div>
               <div className="text-sm">
                 <span className="font-medium">Descrição:</span> {tema.descricao || "Não definida"}
+              </div>
+              <div className="text-sm">
+                <span className="font-medium">Universo Target:</span> {tema.universeTarget || "Não definido"}
               </div>
               {tema.palavrasChave.length > 0 && (
                 <div className="text-sm">

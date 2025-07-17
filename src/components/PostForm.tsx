@@ -88,16 +88,16 @@ export function PostForm({ onGenerate, isLoading }: PostFormProps) {
   return (
     <Card className="shadow-elegant">
       <CardHeader className="bg-gradient-primary text-white rounded-t-lg">
-        <CardTitle className="text-2xl font-bold">Criar Post Marketing</CardTitle>
+        <CardTitle className="text-2xl font-bold">Criar Conteúdo Marketing</CardTitle>
         <CardDescription className="text-white/90">
-          Preencha as informações para gerar seu post personalizado
+          Preencha as informações para gerar seu conteúdo personalizado
         </CardDescription>
       </CardHeader>
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="title">Título do Post *</Label>
+              <Label htmlFor="title">Título do Conteúdo *</Label>
               <Input
                 id="title"
                 value={formData.title}
@@ -125,12 +125,12 @@ export function PostForm({ onGenerate, isLoading }: PostFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="content">Conteúdo do Post *</Label>
+            <Label htmlFor="content">Conteúdo *</Label>
             <Textarea
               id="content"
               value={formData.content}
               onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-              placeholder="Descreva o conteúdo do seu post..."
+              placeholder="Descreva o conteúdo..."
               className="min-h-[100px] transition-smooth"
             />
           </div>
@@ -258,7 +258,7 @@ export function PostForm({ onGenerate, isLoading }: PostFormProps) {
             ) : (
               <Wand2 className="mr-2 h-4 w-4" />
             )}
-            {isLoading ? "Gerando Post..." : "Gerar Post"}
+            {isLoading ? "Gerando Conteúdo..." : "Gerar Conteúdo"}
           </Button>
         </form>
       </CardContent>
