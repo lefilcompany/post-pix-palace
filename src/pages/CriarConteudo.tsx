@@ -286,7 +286,6 @@ export default function CriarConteudo() {
                       <SelectValue placeholder="Selecione uma persona" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Nenhuma persona</SelectItem>
                       {personas.map((persona) => (
                         <SelectItem key={persona.id} value={persona.id.toString()}>
                           {persona.name}

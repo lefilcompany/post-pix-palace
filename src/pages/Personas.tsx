@@ -65,10 +65,13 @@ export default function Personas() {
           age: persona.idade,
           location: persona.localizacao,
           positionDegree: persona.posicaoFormacao,
-          hobbies: persona.hobbies,
-          consumeHabit: persona.habitosConsumo,
-          goals: persona.objetivos,
+          beliefs: persona.hobbies,
+          contentHabit: persona.habitosConsumo,
+          mainObjective: persona.objetivos,
           challenge: persona.desafios,
+          favoriteVoice: "Tom padrão",
+          buyJourney: "Jornada padrão",
+          interestTrigger: "Gatilhos padrão"
         });
 
       if (error) {
