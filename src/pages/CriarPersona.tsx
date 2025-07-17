@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,83 +11,130 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function CriarPersona() {
+  const [brands, setBrands] = useState<any[]>([]);
   const [persona, setPersona] = useState({
-    nome: "",
-    idade: "",
-    genero: "",
-    ocupacao: "",
-    localizacao: "",
-    bio: "",
-    interesses: [] as string[],
-    habitos: "",
-    objetivos: "",
-    desafios: "",
+    brandId: "",
+    name: "",
+    gender: "",
+    age: "",
+    location: "",
+    positionDegree: "",
+    beliefs: "",
+    contentHabit: "",
+    mainObjective: "",
+    challenge: "",
+    favoriteVoice: "",
+    buyJourney: "",
+    interestTrigger: "",
   });
 
   const [novoInteresse, setNovoInteresse] = useState("");
+  const [interesses, setInteresses] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchBrands();
+  }, []);
+
+  const fetchBrands = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("Brand")
+        .select("*")
+        .eq("isDeleted", 0);
+
+      if (error) {
+        console.error("Erro ao buscar marcas:", error);
+      } else {
+        setBrands(data || []);
+      }
+    } catch (error) {
+      console.error("Erro:", error);
+    }
+  };
 
   const adicionarInteresse = () => {
-    if (novoInteresse.trim() && !persona.interesses.includes(novoInteresse.trim())) {
-      setPersona(prev => ({
-        ...prev,
-        interesses: [...prev.interesses, novoInteresse.trim()]
-      }));
+    if (novoInteresse.trim() && !interesses.includes(novoInteresse.trim())) {
+      setInteresses(prev => [...prev, novoInteresse.trim()]);
       setNovoInteresse("");
     }
   };
 
   const removerInteresse = (interesse: string) => {
-    setPersona(prev => ({
-      ...prev,
-      interesses: prev.interesses.filter(i => i !== interesse)
-    }));
+    setInteresses(prev => prev.filter(i => i !== interesse));
   };
 
   const salvarPersona = async () => {
-    if (!persona.nome || !persona.ocupacao || !persona.bio) {
-      toast.error("Preencha todos os campos obrigatórios");
+    if (!persona.name.trim()) {
+      toast.error("Por favor, insira o nome da persona");
       return;
+    }
+
+    if (!persona.brandId) {
+      toast.error("Por favor, selecione uma marca");
+      return;
+    }
+
+    // Validar campos obrigatórios
+    const requiredFields = [
+      'gender', 'age', 'location', 'positionDegree', 'beliefs',
+      'contentHabit', 'mainObjective', 'challenge', 'favoriteVoice',
+      'buyJourney', 'interestTrigger'
+    ];
+
+    for (const field of requiredFields) {
+      if (!persona[field as keyof typeof persona] || persona[field as keyof typeof persona] === '') {
+        toast.error(`Por favor, preencha o campo ${field}`);
+        return;
+      }
     }
 
     try {
       const { error } = await supabase
-        .from('Persona')
-        .insert({
-          brandId: 1, // Temporário
-          teamId: 1, // Temporário
-          name: persona.nome,
-          gender: persona.genero,
-          age: persona.idade,
-          location: persona.localizacao,
-          positionDegree: persona.ocupacao,
-          hobbies: persona.interesses.join(", "),
-          consumeHabit: persona.habitos,
-          goals: persona.objetivos,
-          challenge: persona.desafios,
-        });
+        .from("Persona")
+        .insert([
+          {
+            brandId: parseInt(persona.brandId),
+            teamId: 1, // Usando teamId fixo por enquanto
+            name: persona.name,
+            gender: persona.gender,
+            age: persona.age,
+            location: persona.location,
+            positionDegree: persona.positionDegree,
+            beliefs: persona.beliefs,
+            contentHabit: persona.contentHabit,
+            mainObjective: persona.mainObjective,
+            challenge: persona.challenge,
+            favoriteVoice: persona.favoriteVoice,
+            buyJourney: persona.buyJourney,
+            interestTrigger: persona.interestTrigger
+          }
+        ]);
 
       if (error) {
-        throw error;
+        console.error("Erro ao salvar persona:", error);
+        toast.error("Erro ao criar persona");
+      } else {
+        toast.success("Persona criada com sucesso!");
+        setPersona({
+          brandId: "",
+          name: "",
+          gender: "",
+          age: "",
+          location: "",
+          positionDegree: "",
+          beliefs: "",
+          contentHabit: "",
+          mainObjective: "",
+          challenge: "",
+          favoriteVoice: "",
+          buyJourney: "",
+          interestTrigger: "",
+        });
+        setInteresses([]);
       }
-
-      toast.success("Persona criada com sucesso!");
-      
-      // Reset form
-      setPersona({
-        nome: "",
-        idade: "",
-        genero: "",
-        ocupacao: "",
-        localizacao: "",
-        bio: "",
-        interesses: [],
-        habitos: "",
-        objetivos: "",
-        desafios: "",
-      });
     } catch (error) {
-      console.error("Erro ao criar persona:", error);
-      toast.error("Erro ao criar persona. Tente novamente.");
+      console.error("Erro:", error);
+      toast.error("Erro inesperado");
     }
   };
 
@@ -112,31 +159,47 @@ export default function CriarPersona() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="nome">Nome *</Label>
+              <Label htmlFor="brandId">Marca *</Label>
+              <Select value={persona.brandId} onValueChange={(value) => setPersona(prev => ({ ...prev, brandId: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma marca" />
+                </SelectTrigger>
+                <SelectContent>
+                  {brands.map((brand) => (
+                    <SelectItem key={brand.id} value={brand.id.toString()}>
+                      {brand.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome *</Label>
               <Input
-                id="nome"
-                value={persona.nome}
-                onChange={(e) => setPersona(prev => ({ ...prev, nome: e.target.value }))}
+                id="name"
+                value={persona.name}
+                onChange={(e) => setPersona(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Ex: Maria Silva"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="idade">Idade</Label>
+                <Label htmlFor="age">Idade *</Label>
                 <Input
-                  id="idade"
-                  value={persona.idade}
-                  onChange={(e) => setPersona(prev => ({ ...prev, idade: e.target.value }))}
+                  id="age"
+                  value={persona.age}
+                  onChange={(e) => setPersona(prev => ({ ...prev, age: e.target.value }))}
                   placeholder="Ex: 28 anos"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="genero">Gênero</Label>
+                <Label htmlFor="gender">Gênero *</Label>
                 <Select 
-                  value={persona.genero} 
-                  onValueChange={(value) => setPersona(prev => ({ ...prev, genero: value }))}
+                  value={persona.gender} 
+                  onValueChange={(value) => setPersona(prev => ({ ...prev, gender: value }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione" />
@@ -151,110 +214,108 @@ export default function CriarPersona() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="ocupacao">Ocupação *</Label>
+              <Label htmlFor="location">Localização *</Label>
               <Input
-                id="ocupacao"
-                value={persona.ocupacao}
-                onChange={(e) => setPersona(prev => ({ ...prev, ocupacao: e.target.value }))}
-                placeholder="Ex: Designer Gráfica"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="localizacao">Localização</Label>
-              <Input
-                id="localizacao"
-                value={persona.localizacao}
-                onChange={(e) => setPersona(prev => ({ ...prev, localizacao: e.target.value }))}
+                id="location"
+                value={persona.location}
+                onChange={(e) => setPersona(prev => ({ ...prev, location: e.target.value }))}
                 placeholder="Ex: São Paulo, SP"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="bio">Bio/Descrição *</Label>
-              <Textarea
-                id="bio"
-                value={persona.bio}
-                onChange={(e) => setPersona(prev => ({ ...prev, bio: e.target.value }))}
-                placeholder="Descreva a persona em detalhes"
-                rows={4}
+              <Label htmlFor="positionDegree">Cargo e Formação *</Label>
+              <Input
+                id="positionDegree"
+                value={persona.positionDegree}
+                onChange={(e) => setPersona(prev => ({ ...prev, positionDegree: e.target.value }))}
+                placeholder="Ex: Designer Gráfica, Formada em Design"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="habitos">Hábitos de Consumo</Label>
+              <Label htmlFor="beliefs">Crenças e Interesses *</Label>
               <Textarea
-                id="habitos"
-                value={persona.habitos}
-                onChange={(e) => setPersona(prev => ({ ...prev, habitos: e.target.value }))}
-                placeholder="Como consome conteúdo e produtos?"
+                id="beliefs"
+                value={persona.beliefs}
+                onChange={(e) => setPersona(prev => ({ ...prev, beliefs: e.target.value }))}
+                placeholder="Quais são as crenças e valores da persona?"
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contentHabit">Hábitos de Consumo de Conteúdo *</Label>
+              <Textarea
+                id="contentHabit"
+                value={persona.contentHabit}
+                onChange={(e) => setPersona(prev => ({ ...prev, contentHabit: e.target.value }))}
+                placeholder="Como e onde consome conteúdo?"
                 rows={3}
               />
             </div>
           </CardContent>
         </Card>
 
-        {/* Comportamento e Interesses */}
+        {/* Comportamento e Objetivos */}
         <Card className="border-border/40">
           <CardHeader>
-            <CardTitle>Comportamento e Interesses</CardTitle>
+            <CardTitle>Comportamento e Objetivos</CardTitle>
             <CardDescription>
-              Como a persona se comporta e o que gosta
+              Como a persona se comporta e o que busca
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Interesses/Hobbies</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={novoInteresse}
-                  onChange={(e) => setNovoInteresse(e.target.value)}
-                  placeholder="Adicionar interesse"
-                  onKeyPress={(e) => e.key === 'Enter' && adicionarInteresse()}
-                />
-                <Button 
-                  onClick={adicionarInteresse} 
-                  size="icon" 
-                  variant="outline"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {persona.interesses.map((interesse, index) => (
-                  <Badge key={index} variant="secondary" className="gap-1">
-                    {interesse}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-4 w-4 p-0 hover:bg-destructive/20"
-                      onClick={() => removerInteresse(interesse)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="objetivos">Objetivos</Label>
+              <Label htmlFor="mainObjective">Objetivo Principal *</Label>
               <Textarea
-                id="objetivos"
-                value={persona.objetivos}
-                onChange={(e) => setPersona(prev => ({ ...prev, objetivos: e.target.value }))}
-                placeholder="Quais são os objetivos da persona?"
+                id="mainObjective"
+                value={persona.mainObjective}
+                onChange={(e) => setPersona(prev => ({ ...prev, mainObjective: e.target.value }))}
+                placeholder="Qual é o principal objetivo da persona?"
                 rows={3}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="desafios">Desafios</Label>
+              <Label htmlFor="challenge">Desafios *</Label>
               <Textarea
-                id="desafios"
-                value={persona.desafios}
-                onChange={(e) => setPersona(prev => ({ ...prev, desafios: e.target.value }))}
-                placeholder="Quais são os principais desafios?"
+                id="challenge"
+                value={persona.challenge}
+                onChange={(e) => setPersona(prev => ({ ...prev, challenge: e.target.value }))}
+                placeholder="Quais são os principais desafios enfrentados?"
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="favoriteVoice">Tom de Voz Preferido *</Label>
+              <Input
+                id="favoriteVoice"
+                value={persona.favoriteVoice}
+                onChange={(e) => setPersona(prev => ({ ...prev, favoriteVoice: e.target.value }))}
+                placeholder="Ex: Formal, casual, descontraído, técnico"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="buyJourney">Jornada de Compra *</Label>
+              <Textarea
+                id="buyJourney"
+                value={persona.buyJourney}
+                onChange={(e) => setPersona(prev => ({ ...prev, buyJourney: e.target.value }))}
+                placeholder="Descreva como é o processo de decisão de compra"
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="interestTrigger">Gatilhos de Interesse *</Label>
+              <Textarea
+                id="interestTrigger"
+                value={persona.interestTrigger}
+                onChange={(e) => setPersona(prev => ({ ...prev, interestTrigger: e.target.value }))}
+                placeholder="O que desperta o interesse da persona?"
                 rows={3}
               />
             </div>
@@ -263,14 +324,13 @@ export default function CriarPersona() {
             <div className="mt-6 p-4 bg-muted/30 rounded-lg">
               <h4 className="font-semibold mb-2">Preview da Persona</h4>
               <div className="space-y-2 text-sm">
-                <div><strong>Nome:</strong> {persona.nome || "Não definido"}</div>
-                {persona.idade && <div><strong>Idade:</strong> {persona.idade}</div>}
-                {persona.genero && <div><strong>Gênero:</strong> {persona.genero}</div>}
-                {persona.ocupacao && <div><strong>Ocupação:</strong> {persona.ocupacao}</div>}
-                {persona.localizacao && <div><strong>Local:</strong> {persona.localizacao}</div>}
-                {persona.interesses.length > 0 && (
-                  <div><strong>Interesses:</strong> {persona.interesses.join(", ")}</div>
-                )}
+                <div><strong>Nome:</strong> {persona.name || "Não definido"}</div>
+                <div><strong>Marca:</strong> {brands.find(b => b.id.toString() === persona.brandId)?.name || "Não selecionada"}</div>
+                {persona.age && <div><strong>Idade:</strong> {persona.age}</div>}
+                {persona.gender && <div><strong>Gênero:</strong> {persona.gender}</div>}
+                {persona.positionDegree && <div><strong>Cargo:</strong> {persona.positionDegree}</div>}
+                {persona.location && <div><strong>Local:</strong> {persona.location}</div>}
+                {persona.favoriteVoice && <div><strong>Tom preferido:</strong> {persona.favoriteVoice}</div>}
               </div>
             </div>
 

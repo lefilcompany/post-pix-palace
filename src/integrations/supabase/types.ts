@@ -49,28 +49,73 @@ export type Database = {
       }
       Brand: {
         Row: {
-          createdAt: string
+          brandCrisis: string
+          brandHashtags: string
+          brandInspiration: string
+          brandManual: number
+          brandMission: string
+          brandPillars: string
+          createdAt: string | null
+          currentObjective: string
           id: number
-          isDeleted: number
+          importantDates: string
+          influencersAction: number
+          isDeleted: number | null
           name: string
+          numericTarget: string
+          referenceContents: string
+          relevantContent: string
+          restrictions: string
           teamId: number
-          updatedAt: string
+          updatedAt: string | null
+          userId: number
+          valueProposition: string
         }
         Insert: {
-          createdAt?: string
+          brandCrisis: string
+          brandHashtags: string
+          brandInspiration: string
+          brandManual: number
+          brandMission: string
+          brandPillars: string
+          createdAt?: string | null
+          currentObjective: string
           id?: number
-          isDeleted?: number
+          importantDates: string
+          influencersAction: number
+          isDeleted?: number | null
           name: string
+          numericTarget: string
+          referenceContents: string
+          relevantContent: string
+          restrictions: string
           teamId: number
-          updatedAt?: string
+          updatedAt?: string | null
+          userId: number
+          valueProposition: string
         }
         Update: {
-          createdAt?: string
+          brandCrisis?: string
+          brandHashtags?: string
+          brandInspiration?: string
+          brandManual?: number
+          brandMission?: string
+          brandPillars?: string
+          createdAt?: string | null
+          currentObjective?: string
           id?: number
-          isDeleted?: number
+          importantDates?: string
+          influencersAction?: number
+          isDeleted?: number | null
           name?: string
+          numericTarget?: string
+          referenceContents?: string
+          relevantContent?: string
+          restrictions?: string
           teamId?: number
-          updatedAt?: string
+          updatedAt?: string | null
+          userId?: number
+          valueProposition?: string
         }
         Relationships: [
           {
@@ -80,16 +125,24 @@ export type Database = {
             referencedRelation: "Team"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "Brand_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
         ]
       }
       Content: {
         Row: {
           brandId: number
-          createdAt: string
+          createdAt: string | null
           feeling: string
           format: string
           id: number
-          isDeleted: number
+          imageUrl: string | null
+          isDeleted: number | null
           isPromote: number
           mainMessage: string
           microResult: string
@@ -98,17 +151,18 @@ export type Database = {
           responseAI: string
           teamId: number
           themeId: number
-          updatedAt: string
+          updatedAt: string | null
           userId: number
           visualReference: number
         }
         Insert: {
           brandId: number
-          createdAt?: string
+          createdAt?: string | null
           feeling: string
           format: string
           id?: number
-          isDeleted?: number
+          imageUrl?: string | null
+          isDeleted?: number | null
           isPromote: number
           mainMessage: string
           microResult: string
@@ -117,17 +171,18 @@ export type Database = {
           responseAI: string
           teamId: number
           themeId: number
-          updatedAt?: string
+          updatedAt?: string | null
           userId: number
           visualReference: number
         }
         Update: {
           brandId?: number
-          createdAt?: string
+          createdAt?: string | null
           feeling?: string
           format?: string
           id?: number
-          isDeleted?: number
+          imageUrl?: string | null
+          isDeleted?: number | null
           isPromote?: number
           mainMessage?: string
           microResult?: string
@@ -136,7 +191,7 @@ export type Database = {
           responseAI?: string
           teamId?: number
           themeId?: number
-          updatedAt?: string
+          updatedAt?: string | null
           userId?: number
           visualReference?: number
         }
@@ -182,7 +237,7 @@ export type Database = {
         Row: {
           amountDue: number
           amountPaid: number
-          createdAt: string
+          createdAt: string | null
           dueDate: string | null
           id: number
           paymentId: number | null
@@ -193,7 +248,7 @@ export type Database = {
         Insert: {
           amountDue: number
           amountPaid: number
-          createdAt?: string
+          createdAt?: string | null
           dueDate?: string | null
           id?: number
           paymentId?: number | null
@@ -204,7 +259,7 @@ export type Database = {
         Update: {
           amountDue?: number
           amountPaid?: number
-          createdAt?: string
+          createdAt?: string | null
           dueDate?: string | null
           id?: number
           paymentId?: number | null
@@ -212,34 +267,19 @@ export type Database = {
           stripeInvoiceId?: string
           userId?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "Invoice_paymentId_fkey"
-            columns: ["paymentId"]
-            isOneToOne: false
-            referencedRelation: "Payment"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Invoice_userId_fkey"
-            columns: ["userId"]
-            isOneToOne: false
-            referencedRelation: "User"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       Payment: {
         Row: {
           amount: number
-          createdAt: string
+          createdAt: string | null
           currency: string
           description: string | null
           id: number
           paidAt: string | null
           paymentMethod: string | null
           receiptUrl: string | null
-          refunded: number
+          refunded: number | null
           status: string
           stripeChargeId: string | null
           stripePaymentIntent: string
@@ -247,14 +287,14 @@ export type Database = {
         }
         Insert: {
           amount: number
-          createdAt?: string
+          createdAt?: string | null
           currency: string
           description?: string | null
           id?: number
           paidAt?: string | null
           paymentMethod?: string | null
           receiptUrl?: string | null
-          refunded?: number
+          refunded?: number | null
           status: string
           stripeChargeId?: string | null
           stripePaymentIntent: string
@@ -262,98 +302,81 @@ export type Database = {
         }
         Update: {
           amount?: number
-          createdAt?: string
+          createdAt?: string | null
           currency?: string
           description?: string | null
           id?: number
           paidAt?: string | null
           paymentMethod?: string | null
           receiptUrl?: string | null
-          refunded?: number
+          refunded?: number | null
           status?: string
           stripeChargeId?: string | null
           stripePaymentIntent?: string
           userId?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "Payment_userId_fkey"
-            columns: ["userId"]
-            isOneToOne: false
-            referencedRelation: "User"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      Permission: {
-        Row: {
-          id: number
-          permission: string
-          value: number
-        }
-        Insert: {
-          id?: number
-          permission: string
-          value: number
-        }
-        Update: {
-          id?: number
-          permission?: string
-          value?: number
         }
         Relationships: []
       }
       Persona: {
         Row: {
           age: string
+          beliefs: string
           brandId: number
+          buyJourney: string
           challenge: string
-          consumeHabit: string
-          createdAt: string
+          contentHabit: string
+          createdAt: string | null
+          favoriteVoice: string
           gender: string
-          goals: string
-          hobbies: string
           id: number
-          isDeleted: number
+          interestTrigger: string
+          isDeleted: number | null
           location: string
+          mainObjective: string
           name: string
           positionDegree: string
           teamId: number
-          updatedAt: string
+          updatedAt: string | null
         }
         Insert: {
           age: string
+          beliefs: string
           brandId: number
+          buyJourney: string
           challenge: string
-          consumeHabit: string
-          createdAt?: string
+          contentHabit: string
+          createdAt?: string | null
+          favoriteVoice: string
           gender: string
-          goals: string
-          hobbies: string
           id?: number
-          isDeleted?: number
+          interestTrigger: string
+          isDeleted?: number | null
           location: string
+          mainObjective: string
           name: string
           positionDegree: string
           teamId: number
-          updatedAt?: string
+          updatedAt?: string | null
         }
         Update: {
           age?: string
+          beliefs?: string
           brandId?: number
+          buyJourney?: string
           challenge?: string
-          consumeHabit?: string
-          createdAt?: string
+          contentHabit?: string
+          createdAt?: string | null
+          favoriteVoice?: string
           gender?: string
-          goals?: string
-          hobbies?: string
           id?: number
-          isDeleted?: number
+          interestTrigger?: string
+          isDeleted?: number | null
           location?: string
+          mainObjective?: string
           name?: string
           positionDegree?: string
           teamId?: number
-          updatedAt?: string
+          updatedAt?: string | null
         }
         Relationships: [
           {
@@ -376,9 +399,9 @@ export type Database = {
         Row: {
           brandsLimit: number
           contentLimit: number
-          createdAt: string
+          createdAt: string | null
           id: number
-          isDeleted: number
+          isDeleted: number | null
           membersLimit: number
           name: string
           personasLimit: number
@@ -386,14 +409,14 @@ export type Database = {
           price: number
           reviewLimit: number
           themesLimit: number
-          updatedAt: string
+          updatedAt: string | null
         }
         Insert: {
           brandsLimit: number
           contentLimit: number
-          createdAt?: string
+          createdAt?: string | null
           id?: number
-          isDeleted?: number
+          isDeleted?: number | null
           membersLimit: number
           name: string
           personasLimit: number
@@ -401,14 +424,14 @@ export type Database = {
           price: number
           reviewLimit: number
           themesLimit: number
-          updatedAt?: string
+          updatedAt?: string | null
         }
         Update: {
           brandsLimit?: number
           contentLimit?: number
-          createdAt?: string
+          createdAt?: string | null
           id?: number
-          isDeleted?: number
+          isDeleted?: number | null
           membersLimit?: number
           name?: string
           personasLimit?: number
@@ -416,7 +439,7 @@ export type Database = {
           price?: number
           reviewLimit?: number
           themesLimit?: number
-          updatedAt?: string
+          updatedAt?: string | null
         }
         Relationships: []
       }
@@ -424,43 +447,43 @@ export type Database = {
         Row: {
           addInfo: string
           brandId: number
-          createdAt: string
+          createdAt: string | null
           id: number
-          isDeleted: number
+          isDeleted: number | null
           platform: string
           postsNumber: number
           responseAI: string
           teamId: number
           themeId: number
-          updatedAt: string
+          updatedAt: string | null
           userId: number
         }
         Insert: {
           addInfo: string
           brandId: number
-          createdAt?: string
+          createdAt?: string | null
           id?: number
-          isDeleted?: number
+          isDeleted?: number | null
           platform: string
           postsNumber: number
           responseAI: string
           teamId: number
           themeId: number
-          updatedAt?: string
+          updatedAt?: string | null
           userId: number
         }
         Update: {
           addInfo?: string
           brandId?: number
-          createdAt?: string
+          createdAt?: string | null
           id?: number
-          isDeleted?: number
+          isDeleted?: number | null
           platform?: string
           postsNumber?: number
           responseAI?: string
           teamId?: number
           themeId?: number
-          updatedAt?: string
+          updatedAt?: string | null
           userId?: number
         }
         Relationships: [
@@ -468,7 +491,7 @@ export type Database = {
             foreignKeyName: "Planning_brandId_fkey"
             columns: ["brandId"]
             isOneToOne: false
-            referencedRelation: "Brand"
+            referencedRelation: "Team"
             referencedColumns: ["id"]
           },
           {
@@ -500,7 +523,7 @@ export type Database = {
           id: number
           paymentId: number
           reason: string | null
-          refundedAt: string
+          refundedAt: string | null
           stripeRefundId: string
         }
         Insert: {
@@ -508,7 +531,7 @@ export type Database = {
           id?: number
           paymentId: number
           reason?: string | null
-          refundedAt?: string
+          refundedAt?: string | null
           stripeRefundId: string
         }
         Update: {
@@ -516,51 +539,43 @@ export type Database = {
           id?: number
           paymentId?: number
           reason?: string | null
-          refundedAt?: string
+          refundedAt?: string | null
           stripeRefundId?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "Refund_paymentId_fkey"
-            columns: ["paymentId"]
-            isOneToOne: false
-            referencedRelation: "Payment"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       Review: {
         Row: {
           brandId: number
-          createdAt: string
+          createdAt: string | null
           iaText: string
           id: number
-          isDeleted: number
+          isDeleted: number | null
           responseAI: string
           teamId: number
-          updatedAt: string
+          updatedAt: string | null
           userId: number
         }
         Insert: {
           brandId: number
-          createdAt?: string
+          createdAt?: string | null
           iaText: string
           id?: number
-          isDeleted?: number
+          isDeleted?: number | null
           responseAI: string
           teamId: number
-          updatedAt?: string
+          updatedAt?: string | null
           userId: number
         }
         Update: {
           brandId?: number
-          createdAt?: string
+          createdAt?: string | null
           iaText?: string
           id?: number
-          isDeleted?: number
+          isDeleted?: number | null
           responseAI?: string
           teamId?: number
-          updatedAt?: string
+          updatedAt?: string | null
           userId?: number
         }
         Relationships: [
@@ -580,6 +595,51 @@ export type Database = {
           },
           {
             foreignKeyName: "Review_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Solicitation: {
+        Row: {
+          createdAt: string | null
+          id: number
+          isDeleted: number | null
+          status: string | null
+          teamId: number
+          updatedAt: string | null
+          userId: number
+        }
+        Insert: {
+          createdAt?: string | null
+          id?: number
+          isDeleted?: number | null
+          status?: string | null
+          teamId: number
+          updatedAt?: string | null
+          userId: number
+        }
+        Update: {
+          createdAt?: string | null
+          id?: number
+          isDeleted?: number | null
+          status?: string | null
+          teamId?: number
+          updatedAt?: string | null
+          userId?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Solicitation_teamId_fkey"
+            columns: ["teamId"]
+            isOneToOne: false
+            referencedRelation: "Team"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Solicitation_userId_fkey"
             columns: ["userId"]
             isOneToOne: false
             referencedRelation: "User"
@@ -618,83 +678,75 @@ export type Database = {
           stripeSubscriptionId?: string
           userId?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "Subscription_userId_fkey"
-            columns: ["userId"]
-            isOneToOne: false
-            referencedRelation: "User"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       Team: {
         Row: {
           accessCode: string
-          createdAt: string
+          createdAt: string | null
           id: number
-          isDeleted: number
+          isDeleted: number | null
           nameTeam: string
-          updatedAt: string
+          updatedAt: string | null
         }
         Insert: {
           accessCode: string
-          createdAt?: string
+          createdAt?: string | null
           id?: number
-          isDeleted?: number
+          isDeleted?: number | null
           nameTeam: string
-          updatedAt?: string
+          updatedAt?: string | null
         }
         Update: {
           accessCode?: string
-          createdAt?: string
+          createdAt?: string | null
           id?: number
-          isDeleted?: number
+          isDeleted?: number | null
           nameTeam?: string
-          updatedAt?: string
+          updatedAt?: string | null
         }
         Relationships: []
       }
       TeamPlan: {
         Row: {
-          createdAt: string
+          createdAt: string | null
           endDate: string
           id: number
-          isDeleted: number
+          isDeleted: number | null
           planId: number
           teamId: number
-          updatedAt: string
+          updatedAt: string | null
         }
         Insert: {
-          createdAt?: string
+          createdAt?: string | null
           endDate: string
           id?: number
-          isDeleted?: number
+          isDeleted?: number | null
           planId: number
           teamId: number
-          updatedAt?: string
+          updatedAt?: string | null
         }
         Update: {
-          createdAt?: string
+          createdAt?: string | null
           endDate?: string
           id?: number
-          isDeleted?: number
+          isDeleted?: number | null
           planId?: number
           teamId?: number
-          updatedAt?: string
+          updatedAt?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "TeamPlan_planId_fkey"
             columns: ["planId"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "Plan"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "TeamPlan_teamId_fkey"
             columns: ["teamId"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "Team"
             referencedColumns: ["id"]
           },
@@ -705,48 +757,48 @@ export type Database = {
           addInfo: string
           brandId: number
           colors: string
-          createdAt: string
+          createdAt: string | null
           description: string
           hashtags: string
           id: number
-          isDeleted: number
+          isDeleted: number | null
           objectives: string
           teamId: number
           title: string
           universeTarget: string
-          updatedAt: string
+          updatedAt: string | null
           voiceAI: string
         }
         Insert: {
           addInfo: string
           brandId: number
           colors: string
-          createdAt?: string
+          createdAt?: string | null
           description: string
           hashtags: string
           id?: number
-          isDeleted?: number
+          isDeleted?: number | null
           objectives: string
           teamId: number
           title: string
           universeTarget: string
-          updatedAt?: string
+          updatedAt?: string | null
           voiceAI: string
         }
         Update: {
           addInfo?: string
           brandId?: number
           colors?: string
-          createdAt?: string
+          createdAt?: string | null
           description?: string
           hashtags?: string
           id?: number
-          isDeleted?: number
+          isDeleted?: number | null
           objectives?: string
           teamId?: number
           title?: string
           universeTarget?: string
-          updatedAt?: string
+          updatedAt?: string | null
           voiceAI?: string
         }
         Relationships: [
@@ -769,54 +821,50 @@ export type Database = {
       User: {
         Row: {
           cityUser: string
-          createdAt: string
+          createdAt: string | null
           email: string
           id: number
-          isDeleted: number
+          isDeleted: number | null
           password: string
-          roleUser: number | null
+          rolePermission: string | null
+          roleValue: number | null
           stateUser: string
           stripeCustomerId: string | null
           teamId: number | null
-          updatedAt: string
+          updatedAt: string | null
           userName: string
         }
         Insert: {
           cityUser: string
-          createdAt?: string
+          createdAt?: string | null
           email: string
           id?: number
-          isDeleted?: number
+          isDeleted?: number | null
           password: string
-          roleUser?: number | null
+          rolePermission?: string | null
+          roleValue?: number | null
           stateUser: string
           stripeCustomerId?: string | null
           teamId?: number | null
-          updatedAt: string
+          updatedAt?: string | null
           userName: string
         }
         Update: {
           cityUser?: string
-          createdAt?: string
+          createdAt?: string | null
           email?: string
           id?: number
-          isDeleted?: number
+          isDeleted?: number | null
           password?: string
-          roleUser?: number | null
+          rolePermission?: string | null
+          roleValue?: number | null
           stateUser?: string
           stripeCustomerId?: string | null
           teamId?: number | null
-          updatedAt?: string
+          updatedAt?: string | null
           userName?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "User_roleUser_fkey"
-            columns: ["roleUser"]
-            isOneToOne: false
-            referencedRelation: "Permission"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "User_teamId_fkey"
             columns: ["teamId"]

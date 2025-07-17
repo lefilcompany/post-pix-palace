@@ -50,7 +50,22 @@ export default function Marcas() {
         .from('Brand')
         .insert({
           teamId: 1, // Temporário
+          userId: 1, // Temporário
           name: marca.nome,
+          valueProposition: "Proposta de valor padrão",
+          brandPillars: "Pilares padrão",
+          brandMission: "Missão padrão", 
+          brandInspiration: "Inspiração padrão",
+          currentObjective: "Objetivo padrão",
+          numericTarget: "Meta padrão",
+          restrictions: "Sem restrições",
+          brandHashtags: "#marca",
+          referenceContents: "Conteúdo de referência",
+          importantDates: "Datas importantes",
+          relevantContent: "Conteúdo relevante",
+          brandCrisis: "Gestão de crise padrão",
+          influencersAction: 0,
+          brandManual: 0
         });
 
       if (error) {
