@@ -17,9 +17,9 @@ import {
 const navigationItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Criar Conteúdo", url: "/criar-conteudo", icon: Plus },
-  { title: "Criar Tema", url: "/criar-tema", icon: Palette },
-  { title: "Criar Persona", url: "/criar-persona", icon: Users },
-  { title: "Criar Marca", url: "/criar-marca", icon: Building },
+  { title: "Marcas", url: "/marcas", icon: Building },
+  { title: "Personas", url: "/personas", icon: Users },
+  { title: "Temas", url: "/temas", icon: Palette },
 ];
 
 export function AppSidebar() {

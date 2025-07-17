@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Sparkles, Trash2 } from "lucide-react";
-import { localStorageService, Brand, Theme, Persona } from "@/services/localStorage";
+import { localStorageService } from "@/services/localStorage";
 import { geminiService } from "@/services/gemini";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -42,9 +42,6 @@ const imageStyles = [
 export default function CriarConteudo() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [brands, setBrands] = useState<Brand[]>([]);
-  const [themes, setThemes] = useState<Theme[]>([]);
-  const [personas, setPersonas] = useState<Persona[]>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [colors, setColors] = useState<string[]>([]);
   const [newKeyword, setNewKeyword] = useState("");
@@ -54,19 +51,9 @@ export default function CriarConteudo() {
     titulo: "",
     conteudo: "",
     plataforma: "",
-    marca_id: "",
-    tema_id: "",
-    persona_id: "",
     tom: "",
     estilo_imagem: "",
   });
-
-  useEffect(() => {
-    // Carregar dados necessários
-    setBrands(localStorageService.getBrands());
-    setThemes(localStorageService.getThemes());
-    setPersonas(localStorageService.getPersonas());
-  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -111,7 +98,7 @@ export default function CriarConteudo() {
         content: formData.conteudo,
         tone: formData.tom,
         platform: formData.plataforma,
-        targetAudience: personas.find(p => p.id === formData.persona_id)?.nome || "Público geral",
+        targetAudience: "Público geral",
         keywords,
         imageStyle: formData.estilo_imagem,
         colors,
@@ -122,9 +109,6 @@ export default function CriarConteudo() {
         titulo: formData.titulo,
         conteudo: formData.conteudo,
         plataforma: formData.plataforma,
-        marca_id: formData.marca_id,
-        tema_id: formData.tema_id,
-        persona_id: formData.persona_id,
         tom: formData.tom,
         palavras_chave: keywords,
         estilo_imagem: formData.estilo_imagem,
@@ -204,56 +188,6 @@ export default function CriarConteudo() {
                 placeholder="Descreva o conteúdo que deseja criar..."
                 rows={4}
               />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="marca">Marca</Label>
-                <Select value={formData.marca_id} onValueChange={(value) => handleInputChange("marca_id", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione uma marca" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {brands.map((brand) => (
-                      <SelectItem key={brand.id} value={brand.id}>
-                        {brand.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="tema">Tema</Label>
-                <Select value={formData.tema_id} onValueChange={(value) => handleInputChange("tema_id", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um tema" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {themes.map((theme) => (
-                      <SelectItem key={theme.id} value={theme.id}>
-                        {theme.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="persona">Persona</Label>
-                <Select value={formData.persona_id} onValueChange={(value) => handleInputChange("persona_id", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione uma persona" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {personas.map((persona) => (
-                      <SelectItem key={persona.id} value={persona.id}>
-                        {persona.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

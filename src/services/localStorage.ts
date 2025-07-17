@@ -1,4 +1,3 @@
-
 export interface Brand {
   id: string;
   nome: string;
@@ -145,6 +144,30 @@ class LocalStorageService {
       return contents[index];
     }
     return null;
+  }
+
+  deleteBrand(brandId: string): void {
+    const brands = this.getBrands();
+    const updatedBrands = brands.filter(brand => brand.id !== brandId);
+    localStorage.setItem('brands', JSON.stringify(updatedBrands));
+  }
+
+  deleteTheme(themeId: string): void {
+    const themes = this.getThemes();
+    const updatedThemes = themes.filter(theme => theme.id !== themeId);
+    localStorage.setItem('themes', JSON.stringify(updatedThemes));
+  }
+
+  deletePersona(personaId: string): void {
+    const personas = this.getPersonas();
+    const updatedPersonas = personas.filter(persona => persona.id !== personaId);
+    localStorage.setItem('personas', JSON.stringify(updatedPersonas));
+  }
+
+  deleteContent(contentId: string): void {
+    const contents = this.getContents();
+    const updatedContents = contents.filter(content => content.id !== contentId);
+    localStorage.setItem('contents', JSON.stringify(updatedContents));
   }
 }
 

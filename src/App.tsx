@@ -1,41 +1,37 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "@/components/ui/sonner";
 import { Layout } from "@/components/Layout";
-import Dashboard from "./pages/Dashboard";
-import CriarConteudo from "./pages/CriarConteudo";
-import VisualizarConteudo from "./pages/VisualizarConteudo";
-import CriarTema from "./pages/CriarTema";
-import CriarPersona from "./pages/CriarPersona";
-import CriarMarca from "./pages/CriarMarca";
-import NotFound from "./pages/NotFound";
+import Index from "@/pages/Index";
+import CriarConteudo from "@/pages/CriarConteudo";
+import VisualizarConteudo from "@/pages/VisualizarConteudo";
+import Marcas from "@/pages/Marcas";
+import Personas from "@/pages/Personas";
+import Temas from "@/pages/Temas";
+import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Router>
         <Layout>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<Index />} />
             <Route path="/criar-conteudo" element={<CriarConteudo />} />
             <Route path="/conteudo/:id" element={<VisualizarConteudo />} />
-            <Route path="/criar-tema" element={<CriarTema />} />
-            <Route path="/criar-persona" element={<CriarPersona />} />
-            <Route path="/criar-marca" element={<CriarMarca />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/marcas" element={<Marcas />} />
+            <Route path="/personas" element={<Personas />} />
+            <Route path="/temas" element={<Temas />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+        <Toaster />
+      </Router>
+    </QueryClientProvider>
+  );
+}
 
 export default App;

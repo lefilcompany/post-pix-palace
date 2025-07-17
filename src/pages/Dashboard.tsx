@@ -158,29 +158,29 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 gap-4">
-              <Button asChild variant="outline" className="h-auto p-4 flex-col gap-2">
+            <div className="grid grid-cols-2 gap-4">
+              <Button asChild variant="outline" className="h-20 flex-col gap-2">
                 <Link to="/criar-conteudo">
                   <Plus className="h-6 w-6" />
                   <span>Criar Conteúdo</span>
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="h-auto p-4 flex-col gap-2">
-                <Link to="/criar-tema">
-                  <Palette className="h-6 w-6" />
-                  <span>Criar Tema</span>
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-auto p-4 flex-col gap-2">
-                <Link to="/criar-persona">
-                  <Users className="h-6 w-6" />
-                  <span>Criar Persona</span>
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-auto p-4 flex-col gap-2">
-                <Link to="/criar-marca">
+              <Button asChild variant="outline" className="h-20 flex-col gap-2">
+                <Link to="/marcas">
                   <Building className="h-6 w-6" />
-                  <span>Criar Marca</span>
+                  <span>Marcas</span>
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="h-20 flex-col gap-2">
+                <Link to="/personas">
+                  <Users className="h-6 w-6" />
+                  <span>Personas</span>
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="h-20 flex-col gap-2">
+                <Link to="/temas">
+                  <Palette className="h-6 w-6" />
+                  <span>Temas</span>
                 </Link>
               </Button>
             </div>
