@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Building, Plus, Save, Trash2 } from "lucide-react";
-import { localStorageService, Brand } from "@/services/localStorage";
+import { supabaseService, Brand } from "@/services/supabase";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -33,9 +33,14 @@ export default function Marcas() {
     loadBrands();
   }, []);
 
-  const loadBrands = () => {
-    const allBrands = localStorageService.getBrands();
-    setBrands(allBrands);
+  const loadBrands = async () => {
+    try {
+      const allBrands = await supabaseService.getBrands();
+      setBrands(allBrands);
+    } catch (error) {
+      console.error("Erro ao carregar marcas:", error);
+      toast.error("Erro ao carregar marcas");
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -53,17 +58,20 @@ export default function Marcas() {
     setIsLoading(true);
 
     try {
-      const newBrand = localStorageService.saveBrand({
-        nome: formData.nome,
-        descricao: formData.descricao,
-        setor: formData.setor,
-        publico_alvo: formData.publico_alvo,
-        tom_voz: formData.tom_voz,
-        valores: formData.valores ? formData.valores.split(',').map(v => v.trim()) : [],
-        cores_primarias: [formData.cor_primaria],
-        cores_secundarias: [formData.cor_secundaria],
-        tipografia: "Arial",
-        estilo_visual: "Moderno",
+      const newBrand = await supabaseService.saveBrand({
+        name: formData.nome,
+        valueProposition: formData.descricao,
+        brandPillars: formData.setor,
+        brandMission: formData.publico_alvo,
+        brandInspiration: formData.tom_voz,
+        currentObjective: formData.valores,
+        numericTarget: "0",
+        restrictions: "",
+        brandHashtags: "",
+        referenceContents: "",
+        importantDates: "",
+        relevantContent: "",
+        brandCrisis: "",
       });
       setBrands(prev => [...prev, newBrand]);
       
@@ -91,10 +99,15 @@ export default function Marcas() {
     }
   };
 
-  const deleteBrand = (brandId: string) => {
-    localStorageService.deleteBrand(brandId);
-    setBrands(prev => prev.filter(brand => brand.id !== brandId));
-    toast.success("Marca removida com sucesso!");
+  const deleteBrand = async (brandId: number) => {
+    try {
+      await supabaseService.deleteBrand(brandId);
+      setBrands(prev => prev.filter(brand => brand.id !== brandId));
+      toast.success("Marca removida com sucesso!");
+    } catch (error) {
+      console.error("Erro ao deletar marca:", error);
+      toast.error("Erro ao deletar marca");
+    }
   };
 
   return (
@@ -289,15 +302,14 @@ export default function Marcas() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div 
-                      className="h-10 w-10 rounded-lg flex items-center justify-center"
-                      style={{ backgroundColor: brand.cores_primarias[0] }}
+                      className="h-10 w-10 rounded-lg flex items-center justify-center bg-primary"
                     >
                       <Building className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg">{brand.nome}</CardTitle>
+                      <CardTitle className="text-lg">{brand.name}</CardTitle>
                       <Badge variant="secondary" className="text-xs">
-                        {brand.setor}
+                        {brand.brandPillars}
                       </Badge>
                     </div>
                   </div>
@@ -312,27 +324,25 @@ export default function Marcas() {
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-sm text-muted-foreground mb-3">
-                  {brand.descricao}
+                  {brand.valueProposition}
                 </p>
                 <div className="space-y-2">
-                  {brand.publico_alvo && (
+                  {brand.brandMission && (
                     <div className="text-sm">
-                      <span className="font-medium">Público:</span> {brand.publico_alvo}
+                      <span className="font-medium">Missão:</span> {brand.brandMission}
                     </div>
                   )}
-                  {brand.tom_voz && (
+                  {brand.brandInspiration && (
                     <div className="text-sm">
-                      <span className="font-medium">Tom:</span> {brand.tom_voz}
+                      <span className="font-medium">Inspiração:</span> {brand.brandInspiration}
                     </div>
                   )}
                   <div className="flex items-center gap-2 mt-3">
                     <div 
-                      className="h-4 w-4 rounded-full border"
-                      style={{ backgroundColor: brand.cores_primarias[0] }}
+                      className="h-4 w-4 rounded-full border bg-primary"
                     />
                     <div 
-                      className="h-4 w-4 rounded-full border"
-                      style={{ backgroundColor: brand.cores_secundarias[0] }}
+                      className="h-4 w-4 rounded-full border bg-secondary"
                     />
                   </div>
                 </div>

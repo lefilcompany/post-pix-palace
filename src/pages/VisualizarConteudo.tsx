@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Edit, Loader2, Download, Share2 } from "lucide-react";
-import { localStorageService, Content } from "@/services/localStorage";
+import { supabaseService, Content } from "@/services/supabase";
 import { geminiService } from "@/services/gemini";
 import { toast } from "sonner";
 
@@ -21,36 +21,46 @@ export default function VisualizarConteudo() {
 
   useEffect(() => {
     if (id) {
-      const foundContent = localStorageService.getContentById(id);
+      loadContent();
+    }
+  }, [id, navigate]);
+
+  const loadContent = async () => {
+    try {
+      const foundContent = await supabaseService.getContentById(parseInt(id!));
       if (foundContent) {
         setContent(foundContent);
       } else {
         toast.error("Conteúdo não encontrado");
         navigate("/");
       }
+    } catch (error) {
+      console.error("Erro ao carregar conteúdo:", error);
+      toast.error("Erro ao carregar conteúdo");
+      navigate("/");
     }
-  }, [id, navigate]);
+  };
 
   const handleRegenerateImage = async () => {
     if (!content) return;
 
     setIsRegenerating(true);
     try {
-      const prompt = editPrompt || `Regenerar imagem para o conteúdo: ${content.titulo}`;
+      const prompt = editPrompt || `Regenerar imagem para o conteúdo: ${content.microResult}`;
       
       const imageResponse = await geminiService.generateImage({
-        title: content.titulo,
-        content: content.conteudo + (editPrompt ? ` - Modificação: ${editPrompt}` : ""),
-        tone: content.tom,
-        platform: content.plataforma,
+        title: content.microResult,
+        content: content.mainMessage + (editPrompt ? ` - Modificação: ${editPrompt}` : ""),
+        tone: content.feeling,
+        platform: content.format,
         targetAudience: "Público-alvo",
-        keywords: content.palavras_chave,
-        imageStyle: content.estilo_imagem,
-        colors: content.cores,
+        keywords: [],
+        imageStyle: "moderno",
+        colors: [],
       });
 
-      const updatedContent = localStorageService.updateContent(content.id, {
-        imagem_url: imageResponse.imageUrl,
+      const updatedContent = await supabaseService.updateContent(content.id, {
+        imageUrl: imageResponse.imageUrl,
       });
 
       if (updatedContent) {
@@ -68,10 +78,10 @@ export default function VisualizarConteudo() {
   };
 
   const handleDownload = () => {
-    if (content?.imagem_url) {
+    if (content?.imageUrl) {
       const link = document.createElement('a');
-      link.href = content.imagem_url;
-      link.download = `${content.titulo}.jpg`;
+      link.href = content.imageUrl;
+      link.download = `${content.microResult}.jpg`;
       link.click();
     }
   };
@@ -80,13 +90,13 @@ export default function VisualizarConteudo() {
     if (content) {
       try {
         await navigator.share({
-          title: content.titulo,
-          text: content.conteudo,
-          url: content.imagem_url,
+          title: content.microResult,
+          text: content.mainMessage,
+          url: content.imageUrl,
         });
       } catch (error) {
         // Fallback para cópia do link
-        navigator.clipboard.writeText(content.imagem_url);
+        navigator.clipboard.writeText(content.imageUrl || "");
         toast.success("Link da imagem copiado para a área de transferência!");
       }
     }
@@ -114,9 +124,9 @@ export default function VisualizarConteudo() {
         
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">{content.titulo}</h1>
+            <h1 className="text-3xl font-bold">{content.microResult}</h1>
             <p className="text-muted-foreground">
-              Criado em {new Date(content.created_at).toLocaleDateString()} para {content.plataforma}
+              Criado em {new Date(content.createdAt || "").toLocaleDateString()} para {content.format}
             </p>
           </div>
           
@@ -143,14 +153,14 @@ export default function VisualizarConteudo() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="relative">
-                <img
-                  src={content.imagem_url}
-                  alt={content.titulo}
-                  className="w-full h-auto rounded-lg shadow-lg"
-                />
-              </div>
+              <div className="space-y-4">
+                <div className="relative">
+                  <img
+                    src={content.imageUrl || ""}
+                    alt={content.microResult}
+                    className="w-full h-auto rounded-lg shadow-lg"
+                  />
+                </div>
               
               {/* Edição da imagem */}
               <div className="space-y-4">
@@ -210,7 +220,7 @@ export default function VisualizarConteudo() {
             <div>
               <Label className="text-sm font-medium">Conteúdo</Label>
               <p className="text-sm text-muted-foreground mt-1">
-                {content.conteudo}
+                {content.mainMessage}
               </p>
             </div>
 
@@ -218,48 +228,29 @@ export default function VisualizarConteudo() {
               <div>
                 <Label className="text-sm font-medium">Plataforma</Label>
                 <Badge variant="secondary" className="mt-1">
-                  {content.plataforma}
+                  {content.format}
                 </Badge>
               </div>
               
               <div>
                 <Label className="text-sm font-medium">Tom</Label>
                 <Badge variant="outline" className="mt-1">
-                  {content.tom}
+                  {content.feeling}
                 </Badge>
               </div>
             </div>
 
-            {content.palavras_chave.length > 0 && (
-              <div>
-                <Label className="text-sm font-medium">Palavras-chave</Label>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {content.palavras_chave.map((keyword) => (
-                    <Badge key={keyword} variant="secondary" className="text-xs">
-                      {keyword}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {content.cores.length > 0 && (
-              <div>
-                <Label className="text-sm font-medium">Cores</Label>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {content.cores.map((color) => (
-                    <Badge key={color} variant="outline" className="text-xs">
-                      {color}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
+            <div>
+              <Label className="text-sm font-medium">Próximo Passo</Label>
+              <p className="text-sm text-muted-foreground mt-1">
+                {content.nextStep}
+              </p>
+            </div>
 
             <div>
-              <Label className="text-sm font-medium">Estilo da Imagem</Label>
+              <Label className="text-sm font-medium">Resposta da IA</Label>
               <p className="text-sm text-muted-foreground mt-1">
-                {content.estilo_imagem}
+                {content.responseAI}
               </p>
             </div>
           </CardContent>

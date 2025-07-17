@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Palette, Plus, Save, Trash2, X } from "lucide-react";
-import { localStorageService, Theme } from "@/services/localStorage";
+import { supabaseService, Theme } from "@/services/supabase";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -31,9 +31,14 @@ export default function Temas() {
     loadThemes();
   }, []);
 
-  const loadThemes = () => {
-    const allThemes = localStorageService.getThemes();
-    setThemes(allThemes);
+  const loadThemes = async () => {
+    try {
+      const allThemes = await supabaseService.getThemes();
+      setThemes(allThemes);
+    } catch (error) {
+      console.error("Erro ao carregar temas:", error);
+      toast.error("Erro ao carregar temas");
+    }
   };
 
   const handleInputChange = (field: string, value: string | string[]) => {
@@ -68,16 +73,15 @@ export default function Temas() {
     setIsLoading(true);
 
     try {
-      const newTheme = localStorageService.saveTheme({
-        nome: formData.nome,
-        descricao: formData.descricao,
-        marca_id: "", // TODO: Implement brand selection
-        cores_principais: [formData.cor_primaria],
-        cores_secundarias: [formData.cor_secundaria],
-        tipografia_principal: "Arial",
-        tipografia_secundaria: "Arial",
-        estilo_visual: formData.estilo || "Moderno",
-        elementos_graficos: formData.palavras_chave,
+      const newTheme = await supabaseService.saveTheme({
+        title: formData.nome,
+        description: formData.descricao,
+        colors: formData.cor_primaria,
+        voiceAI: formData.estilo || "Moderno",
+        universeTarget: formData.categoria,
+        hashtags: formData.palavras_chave.join(", "),
+        objectives: formData.categoria,
+        addInfo: formData.palavras_chave.join(", "),
       });
       setThemes(prev => [...prev, newTheme]);
       
@@ -102,10 +106,15 @@ export default function Temas() {
     }
   };
 
-  const deleteTheme = (themeId: string) => {
-    localStorageService.deleteTheme(themeId);
-    setThemes(prev => prev.filter(theme => theme.id !== themeId));
-    toast.success("Tema removido com sucesso!");
+  const deleteTheme = async (themeId: number) => {
+    try {
+      await supabaseService.deleteTheme(themeId);
+      setThemes(prev => prev.filter(theme => theme.id !== themeId));
+      toast.success("Tema removido com sucesso!");
+    } catch (error) {
+      console.error("Erro ao deletar tema:", error);
+      toast.error("Erro ao deletar tema");
+    }
   };
 
   return (
@@ -284,20 +293,17 @@ export default function Temas() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div 
-                      className="h-10 w-10 rounded-lg flex items-center justify-center"
-                       style={{ 
-                         background: `linear-gradient(135deg, ${theme.cores_principais[0]}, ${theme.cores_secundarias[0]})` 
-                       }}
-                    >
+                     <div 
+                       className="h-10 w-10 rounded-lg flex items-center justify-center bg-gradient-primary"
+                     >
                       <Palette className="h-5 w-5 text-white" />
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">{theme.nome}</CardTitle>
-                       <Badge variant="secondary" className="text-xs">
-                         {theme.estilo_visual}
-                       </Badge>
-                    </div>
+                     <div>
+                       <CardTitle className="text-lg">{theme.title}</CardTitle>
+                        <Badge variant="secondary" className="text-xs">
+                          {theme.voiceAI}
+                        </Badge>
+                     </div>
                   </div>
                   <Button
                     variant="ghost"
@@ -310,34 +316,30 @@ export default function Temas() {
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-sm text-muted-foreground mb-3">
-                  {theme.descricao}
+                  {theme.description}
                 </p>
                 <div className="space-y-2">
-                   {theme.estilo_visual && (
+                   {theme.voiceAI && (
                      <div className="text-sm">
-                       <span className="font-medium">Estilo:</span> {theme.estilo_visual}
+                       <span className="font-medium">Tom:</span> {theme.voiceAI}
                      </div>
                    )}
-                   {theme.elementos_graficos.length > 0 && (
+                   {theme.hashtags && (
                      <div className="text-sm">
-                       <span className="font-medium">Elementos:</span>
-                       <div className="flex flex-wrap gap-1 mt-1">
-                         {theme.elementos_graficos.map((elemento, index) => (
-                           <Badge key={index} variant="outline" className="text-xs">
-                             {elemento}
-                           </Badge>
-                         ))}
-                       </div>
+                       <span className="font-medium">Hashtags:</span> {theme.hashtags}
+                     </div>
+                   )}
+                   {theme.objectives && (
+                     <div className="text-sm">
+                       <span className="font-medium">Objetivos:</span> {theme.objectives}
                      </div>
                    )}
                   <div className="flex items-center gap-2 mt-3">
                      <div 
-                       className="h-4 w-4 rounded-full border"
-                       style={{ backgroundColor: theme.cores_principais[0] }}
+                       className="h-4 w-4 rounded-full border bg-primary"
                      />
                      <div 
-                       className="h-4 w-4 rounded-full border"
-                       style={{ backgroundColor: theme.cores_secundarias[0] }}
+                       className="h-4 w-4 rounded-full border bg-secondary"
                      />
                   </div>
                 </div>

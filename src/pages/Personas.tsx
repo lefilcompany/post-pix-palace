@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Users, Plus, Save, Trash2 } from "lucide-react";
-import { localStorageService, Persona } from "@/services/localStorage";
+import { supabaseService, Persona } from "@/services/supabase";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -34,9 +34,14 @@ export default function Personas() {
     loadPersonas();
   }, []);
 
-  const loadPersonas = () => {
-    const allPersonas = localStorageService.getPersonas();
-    setPersonas(allPersonas);
+  const loadPersonas = async () => {
+    try {
+      const allPersonas = await supabaseService.getPersonas();
+      setPersonas(allPersonas);
+    } catch (error) {
+      console.error("Erro ao carregar personas:", error);
+      toast.error("Erro ao carregar personas");
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -54,16 +59,19 @@ export default function Personas() {
     setIsLoading(true);
 
     try {
-      const newPersona = localStorageService.savePersona({
-        nome: formData.nome,
-        idade: parseInt(formData.idade) || 0,
-        profissao: formData.profissao,
-        marca_id: "", // TODO: Implement brand selection
-        descricao: `${formData.profissao} de ${formData.idade} anos`,
-        objetivos: formData.objetivos ? formData.objetivos.split(',').map(o => o.trim()) : [],
-        dores: formData.dores ? formData.dores.split(',').map(d => d.trim()) : [],
-        comportamentos: formData.comportamento_digital ? formData.comportamento_digital.split(',').map(c => c.trim()) : [],
-        canais_preferidos: formData.plataformas_preferidas ? formData.plataformas_preferidas.split(',').map(p => p.trim()) : [],
+      const newPersona = await supabaseService.savePersona({
+        name: formData.nome,
+        age: formData.idade,
+        positionDegree: formData.profissao,
+        location: formData.localizacao,
+        beliefs: formData.interesses,
+        contentHabit: formData.comportamento_digital,
+        mainObjective: formData.objetivos,
+        challenge: formData.dores,
+        favoriteVoice: formData.plataformas_preferidas,
+        buyJourney: formData.escolaridade,
+        interestTrigger: formData.renda,
+        gender: "Não informado",
       });
       setPersonas(prev => [...prev, newPersona]);
       
@@ -92,10 +100,15 @@ export default function Personas() {
     }
   };
 
-  const deletePersona = (personaId: string) => {
-    localStorageService.deletePersona(personaId);
-    setPersonas(prev => prev.filter(persona => persona.id !== personaId));
-    toast.success("Persona removida com sucesso!");
+  const deletePersona = async (personaId: number) => {
+    try {
+      await supabaseService.deletePersona(personaId);
+      setPersonas(prev => prev.filter(persona => persona.id !== personaId));
+      toast.success("Persona removida com sucesso!");
+    } catch (error) {
+      console.error("Erro ao deletar persona:", error);
+      toast.error("Erro ao deletar persona");
+    }
   };
 
   return (
@@ -283,9 +296,9 @@ export default function Personas() {
                       <Users className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg">{persona.nome}</CardTitle>
+                      <CardTitle className="text-lg">{persona.name}</CardTitle>
                      <Badge variant="secondary" className="text-xs">
-                        {persona.idade} anos
+                        {persona.age}
                       </Badge>
                     </div>
                   </div>
@@ -301,16 +314,16 @@ export default function Personas() {
               <CardContent className="pt-0">
                 <div className="space-y-2">
                    <div className="text-sm">
-                     <span className="font-medium">Profissão:</span> {persona.profissao}
+                     <span className="font-medium">Profissão:</span> {persona.positionDegree}
                    </div>
                    <div className="text-sm">
-                     <span className="font-medium">Objetivos:</span> {persona.objetivos.join(', ')}
+                     <span className="font-medium">Localização:</span> {persona.location}
                    </div>
                    <div className="text-sm">
-                     <span className="font-medium">Dores:</span> {persona.dores.join(', ')}
+                     <span className="font-medium">Objetivo:</span> {persona.mainObjective}
                    </div>
                    <div className="text-sm">
-                     <span className="font-medium">Canais:</span> {persona.canais_preferidos.join(', ')}
+                     <span className="font-medium">Desafio:</span> {persona.challenge}
                    </div>
                 </div>
               </CardContent>

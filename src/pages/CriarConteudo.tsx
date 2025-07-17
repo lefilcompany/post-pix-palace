@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Sparkles, Trash2 } from "lucide-react";
-import { localStorageService } from "@/services/localStorage";
+import { supabaseService } from "@/services/supabase";
 import { geminiService } from "@/services/gemini";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -105,18 +105,19 @@ export default function CriarConteudo() {
       });
 
       // Salvar conteúdo
-      const newContent = localStorageService.saveContent({
-        titulo: formData.titulo,
-        conteudo: formData.conteudo,
-        plataforma: formData.plataforma,
-        marca_id: "", // TODO: Implement brand selection
-        tema_id: "", // TODO: Implement theme selection
-        persona_id: "", // TODO: Implement persona selection
-        tom: formData.tom,
-        palavras_chave: keywords,
-        estilo_imagem: formData.estilo_imagem,
-        cores: colors,
-        imagem_url: imageResponse.imageUrl,
+      const newContent = await supabaseService.saveContent({
+        brandId: 1, // TODO: Implement brand selection
+        themeId: 1, // TODO: Implement theme selection
+        personaId: 1, // TODO: Implement persona selection
+        isPromote: 0,
+        visualReference: 0,
+        microResult: formData.titulo,
+        mainMessage: formData.conteudo,
+        feeling: formData.tom,
+        format: formData.plataforma,
+        nextStep: "Publicar",
+        responseAI: formData.conteudo,
+        imageUrl: imageResponse.imageUrl,
       });
 
       toast.success("Conteúdo criado com sucesso!");
