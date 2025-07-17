@@ -1,5 +1,5 @@
 
-interface GeminiImageRequest {
+interface OpenAIImageRequest {
   title: string;
   content: string;
   tone: string;
@@ -10,93 +10,72 @@ interface GeminiImageRequest {
   colors: string[];
 }
 
-interface GeminiImageResponse {
+interface OpenAIImageResponse {
   imageUrl: string;
 }
 
-export class GeminiService {
-  private apiKey: string = "AIzaSyBPANVrJq8BWVNXcfBANrI8ppONwQUA_UI";
-  private baseUrl: string = "https://generativelanguage.googleapis.com/v1beta";
+export class OpenAIService {
+  private apiKey: string = "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";
+  private baseUrl: string = "https://api.openai.com/v1";
 
-  async generateImage(request: GeminiImageRequest): Promise<GeminiImageResponse> {
+  async generateImage(request: OpenAIImageRequest): Promise<OpenAIImageResponse> {
     try {
       // Criar prompt baseado nos dados do formulário
       const prompt = this.createImagePrompt(request);
       
-      console.log("Generating image with Gemini for prompt:", prompt);
+      console.log("Generating image with OpenAI DALL-E for prompt:", prompt);
       
-      // Simular delay de processamento
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Gerar imagem baseada no contexto do conteúdo
-      const imageUrl = this.generateContextualImage(request);
+      // Fazer chamada para OpenAI DALL-E API
+      const response = await fetch(`${this.baseUrl}/images/generations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`
+        },
+        body: JSON.stringify({
+          model: "dall-e-3",
+          prompt: prompt,
+          n: 1,
+          size: this.getImageSize(request.platform),
+          quality: "standard",
+          style: request.imageStyle === 'fotografico' ? 'natural' : 'vivid'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const imageUrl = data.data[0].url;
       
       console.log("Generated image URL:", imageUrl);
       
       return { imageUrl };
     } catch (error) {
       console.error("Erro ao gerar imagem:", error);
-      throw new Error("Falha ao gerar imagem com Gemini");
+      throw new Error("Falha ao gerar imagem com OpenAI");
     }
   }
 
-  private generateContextualImage(request: GeminiImageRequest): string {
-    const { platform, content, imageStyle, title } = request;
-    
-    // Selecionar imagem baseada no conteúdo e plataforma
-    const baseImages = {
-      tecnologia: 'photo-1488590528505-98d2b5aba04b',
-      negocio: 'photo-1519389950473-47ba0277781c',
-      marketing: 'photo-1461749280684-dccba630e2f6',
-      corporativo: 'photo-1498050108023-c5249f4df085',
-      social: 'photo-1581091226825-a6a2a5aee158',
-      criativo: 'photo-1500673922987-e212871fec22',
-      default: 'photo-1605810230434-7631ac76ec81'
-    };
-    
-    // Determinar categoria baseada no conteúdo
-    let category = 'default';
-    const lowerContent = content.toLowerCase();
-    const lowerTitle = title.toLowerCase();
-    
-    if (lowerContent.includes('tecnologia') || lowerTitle.includes('tech') || 
-        lowerContent.includes('software') || lowerContent.includes('app')) {
-      category = 'tecnologia';
-    } else if (lowerContent.includes('negócio') || lowerContent.includes('business') ||
-               lowerContent.includes('empresa') || lowerContent.includes('vendas')) {
-      category = 'negocio';
-    } else if (lowerContent.includes('marketing') || lowerContent.includes('publicidade') ||
-               lowerContent.includes('campanha') || lowerContent.includes('social')) {
-      category = 'marketing';
-    } else if (lowerContent.includes('corporativo') || lowerContent.includes('profissional') ||
-               lowerContent.includes('trabalho') || lowerContent.includes('equipe')) {
-      category = 'corporativo';
-    } else if (platform === 'instagram' || platform === 'facebook' || platform === 'tiktok') {
-      category = 'social';
-    } else if (imageStyle === 'criativo' || imageStyle === 'artistico') {
-      category = 'criativo';
+  private getImageSize(platform: string): string {
+    switch (platform) {
+      case 'instagram':
+        return '1024x1024';
+      case 'facebook':
+        return '1024x1024';
+      case 'linkedin':
+        return '1024x1024';
+      case 'twitter':
+        return '1024x1024';
+      case 'tiktok':
+        return '1024x1024';
+      default:
+        return '1024x1024';
     }
-    
-    const imageId = baseImages[category as keyof typeof baseImages];
-    
-    // Determinar dimensões baseada na plataforma
-    let dimensions = '800x600';
-    if (platform === 'instagram') {
-      dimensions = '1080x1080';
-    } else if (platform === 'facebook') {
-      dimensions = '1200x630';
-    } else if (platform === 'linkedin') {
-      dimensions = '1200x627';
-    } else if (platform === 'twitter') {
-      dimensions = '1200x675';
-    } else if (platform === 'tiktok') {
-      dimensions = '1080x1920';
-    }
-    
-    return `https://images.unsplash.com/${imageId}?fit=crop&w=${dimensions.split('x')[0]}&h=${dimensions.split('x')[1]}&q=80`;
   }
 
-  private createImagePrompt(request: GeminiImageRequest): string {
+  private createImagePrompt(request: OpenAIImageRequest): string {
     const { title, content, tone, platform, targetAudience, imageStyle, colors } = request;
     
     return `Create a professional marketing image for ${platform} with the following specifications:
@@ -121,4 +100,4 @@ export class GeminiService {
   }
 }
 
-export const geminiService = new GeminiService();
+export const geminiService = new OpenAIService();
