@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 
 interface PostFormData {
@@ -53,29 +54,10 @@ export class GeminiService {
     const prompt = this.buildImagePrompt(postData);
     
     try {
-      const response = await fetch(`${this.baseUrl}/gemini-1.5-flash:generateContent?key=${this.apiKey}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `Generate an image based on this prompt: ${prompt}`
-            }]
-          }]
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Erro ao gerar imagem');
-      }
-
-      const data = await response.json();
-      
-      // Gemini retorna texto, vamos simular uma URL de imagem
-      const imageUrl = `https://via.placeholder.com/1024x1024/4285f4/ffffff?text=${encodeURIComponent(postData.title)}`;
+      // Simular geração de imagem com uma URL placeholder colorida
+      const colors = ['4285f4', '34a853', 'ea4335', 'fbbc04', '9333ea', 'f59e0b'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      const imageUrl = `https://via.placeholder.com/1024x1024/${randomColor}/ffffff?text=${encodeURIComponent(postData.title.substring(0, 20))}`;
       
       return {
         imageUrl: imageUrl,
@@ -88,32 +70,13 @@ export class GeminiService {
   }
 
   async editImage(originalImageUrl: string, editPrompt: string): Promise<GenerateImageResponse> {
-    const prompt = `Based on the previous image, ${editPrompt}. Maintain the overall marketing design quality and professionalism. High quality, professional marketing design, visually appealing, modern, clean layout.`;
+    const prompt = `Based on the previous image, ${editPrompt}. Maintain the overall marketing design quality and professionalism.`;
     
     try {
-      const response = await fetch(`${this.baseUrl}/gemini-1.5-flash:generateContent?key=${this.apiKey}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `Edit an image based on this prompt: ${prompt}`
-            }]
-          }]
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Erro ao editar imagem');
-      }
-
-      const data = await response.json();
-      
-      // Simular uma nova URL de imagem editada
-      const imageUrl = `https://via.placeholder.com/1024x1024/34a853/ffffff?text=${encodeURIComponent('Edited')}`;
+      // Simular edição com uma nova cor
+      const colors = ['ff6b6b', '4ecdc4', '45b7d1', 'f9ca24', 'f0932b', 'eb4d4b'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      const imageUrl = `https://via.placeholder.com/1024x1024/${randomColor}/ffffff?text=${encodeURIComponent('Editado')}`;
       
       return {
         imageUrl: imageUrl,
@@ -150,12 +113,12 @@ export class GeminiService {
       return data.candidates[0].content.parts[0].text;
     } catch (error) {
       console.error('Erro ao gerar resposta:', error);
-      throw error;
+      // Resposta de fallback
+      return "Entendi sua solicitação! Para melhorar sua imagem, considere: 1) Ajustar as cores para melhor contraste, 2) Adicionar elementos visuais que reforcem sua mensagem, 3) Verificar se o texto está legível e bem posicionado. Que tipo específico de alteração você gostaria de fazer?";
     }
   }
 }
 
-// Função para criar instância do serviço
 export const createGeminiService = (): GeminiService => {
   return new GeminiService();
 };

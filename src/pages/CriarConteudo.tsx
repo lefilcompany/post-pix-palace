@@ -6,14 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createGeminiService, GeminiService } from "@/services/gemini";
-import { supabase } from "@/integrations/supabase/client";
+import { localStorageService, Brand, Theme, Persona } from "@/services/localStorage";
 import { toast } from "sonner";
 import { Loader2, Sparkles } from "lucide-react";
 
 export default function CriarConteudo() {
-  const [brands, setBrands] = useState<any[]>([]);
-  const [themes, setThemes] = useState<any[]>([]);
-  const [personas, setPersonas] = useState<any[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [themes, setThemes] = useState<Theme[]>([]);
+  const [personas, setPersonas] = useState<Persona[]>([]);
   const [generatedImage, setGeneratedImage] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [geminiService, setGeminiService] = useState<GeminiService | null>(null);
@@ -35,66 +35,37 @@ export default function CriarConteudo() {
     setGeminiService(createGeminiService());
   }, []);
 
-  const fetchBrands = async () => {
+  const fetchBrands = () => {
     try {
-      const { data, error } = await supabase
-        .from("Brand")
-        .select("*")
-        .eq("isDeleted", 0);
-
-      if (error) {
-        console.error("Erro ao buscar marcas:", error);
-      } else {
-        setBrands(data || []);
-      }
+      const data = localStorageService.getBrands();
+      setBrands(data);
     } catch (error) {
-      console.error("Erro:", error);
+      console.error("Erro ao buscar marcas:", error);
+      toast.error("Erro ao carregar marcas");
     }
   };
 
-  const fetchThemes = async (brandId?: string) => {
+  const fetchThemes = (brandId?: string) => {
     try {
-      let query = supabase
-        .from("Theme")
-        .select("*")
-        .eq("isDeleted", 0);
-      
-      if (brandId) {
-        query = query.eq("brandId", parseInt(brandId));
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Erro ao buscar temas:", error);
-      } else {
-        setThemes(data || []);
-      }
+      const data = brandId 
+        ? localStorageService.getThemes(parseInt(brandId))
+        : localStorageService.getThemes();
+      setThemes(data);
     } catch (error) {
-      console.error("Erro:", error);
+      console.error("Erro ao buscar temas:", error);
+      toast.error("Erro ao carregar temas");
     }
   };
 
-  const fetchPersonas = async (brandId?: string) => {
+  const fetchPersonas = (brandId?: string) => {
     try {
-      let query = supabase
-        .from("Persona")
-        .select("*")
-        .eq("isDeleted", 0);
-      
-      if (brandId) {
-        query = query.eq("brandId", parseInt(brandId));
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Erro ao buscar personas:", error);
-      } else {
-        setPersonas(data || []);
-      }
+      const data = brandId 
+        ? localStorageService.getPersonas(parseInt(brandId))
+        : localStorageService.getPersonas();
+      setPersonas(data);
     } catch (error) {
-      console.error("Erro:", error);
+      console.error("Erro ao buscar personas:", error);
+      toast.error("Erro ao carregar personas");
     }
   };
 
@@ -134,16 +105,6 @@ export default function CriarConteudo() {
         return;
       }
 
-      // Criar prompt baseado nos dados do formulário
-      const prompt = `Criar uma imagem para um post de marketing:
-      Micro resultado: ${formData.microResult}
-      Mensagem principal: ${formData.mainMessage}
-      Sentimento: ${formData.feeling}
-      Formato: ${formData.format}
-      Próximo passo: ${formData.nextStep}
-      
-      Estilo: moderno, profissional, para redes sociais, alta qualidade, visual atrativo.`;
-
       const result = await geminiService.generateImage({
         title: formData.microResult,
         content: formData.mainMessage,
@@ -157,34 +118,23 @@ export default function CriarConteudo() {
       
       setGeneratedImage(result.imageUrl);
       
-      // Salvar no Supabase
-      const { error } = await supabase
-        .from("Content")
-        .insert([
-          {
-            userId: 1, // Temporário
-            teamId: 1, // Temporário
-            brandId: parseInt(formData.brandId),
-            themeId: parseInt(formData.themeId),
-            personaId: formData.personaId ? parseInt(formData.personaId) : null,
-            microResult: formData.microResult,
-            mainMessage: formData.mainMessage,
-            feeling: formData.feeling,
-            format: formData.format,
-            nextStep: formData.nextStep,
-            isPromote: formData.isPromote,
-            visualReference: formData.visualReference,
-            responseAI: JSON.stringify(result),
-            imageUrl: result.imageUrl
-          }
-        ]);
+      // Salvar no localStorage
+      localStorageService.createContent({
+        brandId: parseInt(formData.brandId),
+        themeId: parseInt(formData.themeId),
+        personaId: formData.personaId ? parseInt(formData.personaId) : undefined,
+        microResult: formData.microResult,
+        mainMessage: formData.mainMessage,
+        feeling: formData.feeling,
+        format: formData.format,
+        nextStep: formData.nextStep,
+        isPromote: formData.isPromote,
+        visualReference: formData.visualReference,
+        responseAI: JSON.stringify(result),
+        imageUrl: result.imageUrl
+      });
 
-      if (error) {
-        console.error("Erro ao salvar conteúdo:", error);
-        toast.error("Erro ao salvar conteúdo no banco");
-      } else {
-        toast.success("Conteúdo gerado e salvo com sucesso!");
-      }
+      toast.success("Conteúdo gerado e salvo com sucesso!");
     } catch (error) {
       console.error("Erro ao gerar post:", error);
       toast.error("Erro ao gerar o post. Tente novamente.");
@@ -408,18 +358,14 @@ export default function CriarConteudo() {
             <Card className="border-border/40">
               <CardContent className="p-6">
                 <div className="aspect-square rounded-lg bg-muted flex items-center justify-center mb-6">
-                  {generatedImage ? (
-                    <img 
-                      src={generatedImage} 
-                      alt="Conteúdo gerado" 
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  ) : (
-                    <div className="text-center text-muted-foreground">
-                      <Sparkles className="h-12 w-12 mx-auto mb-2" />
-                      <p>Imagem gerada</p>
-                    </div>
-                  )}
+                  <img 
+                    src={generatedImage} 
+                    alt="Conteúdo gerado" 
+                    className="w-full h-full object-cover rounded-lg"
+                    onError={(e) => {
+                      e.currentTarget.src = "https://via.placeholder.com/1024x1024/3b82f6/ffffff?text=Imagem+Gerada";
+                    }}
+                  />
                 </div>
                 
                 <div className="space-y-4">

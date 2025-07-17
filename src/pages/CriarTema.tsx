@@ -8,10 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Palette, Save, Plus, X } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { localStorageService, Brand } from "@/services/localStorage";
 
 export default function CriarTema() {
-  const [brands, setBrands] = useState<any[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [tema, setTema] = useState({
     brandId: "",
     title: "",
@@ -31,20 +31,13 @@ export default function CriarTema() {
     fetchBrands();
   }, []);
 
-  const fetchBrands = async () => {
+  const fetchBrands = () => {
     try {
-      const { data, error } = await supabase
-        .from("Brand")
-        .select("*")
-        .eq("isDeleted", 0);
-
-      if (error) {
-        console.error("Erro ao buscar marcas:", error);
-      } else {
-        setBrands(data || []);
-      }
+      const data = localStorageService.getBrands();
+      setBrands(data);
     } catch (error) {
-      console.error("Erro:", error);
+      console.error("Erro ao buscar marcas:", error);
+      toast.error("Erro ao carregar marcas");
     }
   };
 
@@ -76,41 +69,31 @@ export default function CriarTema() {
     }
 
     try {
-      const { error } = await supabase
-        .from("Theme")
-        .insert([
-          {
-            brandId: parseInt(tema.brandId),
-            teamId: 1, // Usando teamId fixo por enquanto
-            title: tema.title,
-            description: tema.description,
-            colors: tema.colors || "#3b82f6, #6366f1",
-            voiceAI: tema.voiceAI || "Profissional e engajador",
-            universeTarget: tema.universeTarget || "Público geral",
-            hashtags: palavrasChave.join(", "),
-            objectives: tema.objectives || "Criar conteúdo visual atrativo",
-            addInfo: tema.addInfo || "Informações adicionais sobre o tema"
-          }
-        ]);
+      localStorageService.createTheme({
+        brandId: parseInt(tema.brandId),
+        title: tema.title,
+        description: tema.description,
+        colors: tema.colors || "#3b82f6, #6366f1",
+        voiceAI: tema.voiceAI || "Profissional e engajador",
+        universeTarget: tema.universeTarget || "Público geral",
+        hashtags: palavrasChave.join(", "),
+        objectives: tema.objectives || "Criar conteúdo visual atrativo",
+        addInfo: tema.addInfo || "Informações adicionais sobre o tema"
+      });
 
-      if (error) {
-        console.error("Erro ao salvar tema:", error);
-        toast.error("Erro ao criar tema");
-      } else {
-        toast.success("Tema criado com sucesso!");
-        setTema({
-          brandId: "",
-          title: "",
-          description: "",
-          colors: "",
-          voiceAI: "",
-          universeTarget: "",
-          hashtags: "",
-          objectives: "",
-          addInfo: "",
-        });
-        setPalavrasChave([]);
-      }
+      toast.success("Tema criado com sucesso!");
+      setTema({
+        brandId: "",
+        title: "",
+        description: "",
+        colors: "",
+        voiceAI: "",
+        universeTarget: "",
+        hashtags: "",
+        objectives: "",
+        addInfo: "",
+      });
+      setPalavrasChave([]);
     } catch (error) {
       console.error("Erro:", error);
       toast.error("Erro inesperado");

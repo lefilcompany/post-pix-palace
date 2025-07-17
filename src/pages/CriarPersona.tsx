@@ -5,13 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Users, Save, Plus, X } from "lucide-react";
+import { Users, Save } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { localStorageService, Brand } from "@/services/localStorage";
 
 export default function CriarPersona() {
-  const [brands, setBrands] = useState<any[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [persona, setPersona] = useState({
     brandId: "",
     name: "",
@@ -28,39 +27,18 @@ export default function CriarPersona() {
     interestTrigger: "",
   });
 
-  const [novoInteresse, setNovoInteresse] = useState("");
-  const [interesses, setInteresses] = useState<string[]>([]);
-
   useEffect(() => {
     fetchBrands();
   }, []);
 
-  const fetchBrands = async () => {
+  const fetchBrands = () => {
     try {
-      const { data, error } = await supabase
-        .from("Brand")
-        .select("*")
-        .eq("isDeleted", 0);
-
-      if (error) {
-        console.error("Erro ao buscar marcas:", error);
-      } else {
-        setBrands(data || []);
-      }
+      const data = localStorageService.getBrands();
+      setBrands(data);
     } catch (error) {
-      console.error("Erro:", error);
+      console.error("Erro ao buscar marcas:", error);
+      toast.error("Erro ao carregar marcas");
     }
-  };
-
-  const adicionarInteresse = () => {
-    if (novoInteresse.trim() && !interesses.includes(novoInteresse.trim())) {
-      setInteresses(prev => [...prev, novoInteresse.trim()]);
-      setNovoInteresse("");
-    }
-  };
-
-  const removerInteresse = (interesse: string) => {
-    setInteresses(prev => prev.filter(i => i !== interesse));
   };
 
   const salvarPersona = async () => {
@@ -74,64 +52,44 @@ export default function CriarPersona() {
       return;
     }
 
-    // Validar campos obrigatórios
-    const requiredFields = [
-      'gender', 'age', 'location', 'positionDegree', 'beliefs',
-      'contentHabit', 'mainObjective', 'challenge', 'favoriteVoice',
-      'buyJourney', 'interestTrigger'
-    ];
-
-    for (const field of requiredFields) {
-      if (!persona[field as keyof typeof persona] || persona[field as keyof typeof persona] === '') {
-        toast.error(`Por favor, preencha o campo ${field}`);
-        return;
-      }
+    if (!persona.age.trim()) {
+      toast.error("Por favor, insira a idade");
+      return;
     }
 
     try {
-      const { error } = await supabase
-        .from("Persona")
-        .insert([
-          {
-            brandId: parseInt(persona.brandId),
-            teamId: 1, // Usando teamId fixo por enquanto
-            name: persona.name,
-            gender: persona.gender,
-            age: persona.age,
-            location: persona.location,
-            positionDegree: persona.positionDegree,
-            beliefs: persona.beliefs,
-            contentHabit: persona.contentHabit,
-            mainObjective: persona.mainObjective,
-            challenge: persona.challenge,
-            favoriteVoice: persona.favoriteVoice,
-            buyJourney: persona.buyJourney,
-            interestTrigger: persona.interestTrigger
-          }
-        ]);
+      localStorageService.createPersona({
+        brandId: parseInt(persona.brandId),
+        name: persona.name,
+        gender: persona.gender || "não especificado",
+        age: persona.age,
+        location: persona.location || "não especificado",
+        positionDegree: persona.positionDegree || "não especificado",
+        beliefs: persona.beliefs || "não especificado",
+        contentHabit: persona.contentHabit || "não especificado",
+        mainObjective: persona.mainObjective || "não especificado",
+        challenge: persona.challenge || "não especificado",
+        favoriteVoice: persona.favoriteVoice || "não especificado",
+        buyJourney: persona.buyJourney || "não especificado",
+        interestTrigger: persona.interestTrigger || "não especificado"
+      });
 
-      if (error) {
-        console.error("Erro ao salvar persona:", error);
-        toast.error("Erro ao criar persona");
-      } else {
-        toast.success("Persona criada com sucesso!");
-        setPersona({
-          brandId: "",
-          name: "",
-          gender: "",
-          age: "",
-          location: "",
-          positionDegree: "",
-          beliefs: "",
-          contentHabit: "",
-          mainObjective: "",
-          challenge: "",
-          favoriteVoice: "",
-          buyJourney: "",
-          interestTrigger: "",
-        });
-        setInteresses([]);
-      }
+      toast.success("Persona criada com sucesso!");
+      setPersona({
+        brandId: "",
+        name: "",
+        gender: "",
+        age: "",
+        location: "",
+        positionDegree: "",
+        beliefs: "",
+        contentHabit: "",
+        mainObjective: "",
+        challenge: "",
+        favoriteVoice: "",
+        buyJourney: "",
+        interestTrigger: "",
+      });
     } catch (error) {
       console.error("Erro:", error);
       toast.error("Erro inesperado");
@@ -196,7 +154,7 @@ export default function CriarPersona() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="gender">Gênero *</Label>
+                <Label htmlFor="gender">Gênero</Label>
                 <Select 
                   value={persona.gender} 
                   onValueChange={(value) => setPersona(prev => ({ ...prev, gender: value }))}
@@ -214,7 +172,7 @@ export default function CriarPersona() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="location">Localização *</Label>
+              <Label htmlFor="location">Localização</Label>
               <Input
                 id="location"
                 value={persona.location}
@@ -224,7 +182,7 @@ export default function CriarPersona() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="positionDegree">Cargo e Formação *</Label>
+              <Label htmlFor="positionDegree">Cargo e Formação</Label>
               <Input
                 id="positionDegree"
                 value={persona.positionDegree}
@@ -234,7 +192,7 @@ export default function CriarPersona() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="beliefs">Crenças e Interesses *</Label>
+              <Label htmlFor="beliefs">Crenças e Interesses</Label>
               <Textarea
                 id="beliefs"
                 value={persona.beliefs}
@@ -245,7 +203,7 @@ export default function CriarPersona() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contentHabit">Hábitos de Consumo de Conteúdo *</Label>
+              <Label htmlFor="contentHabit">Hábitos de Consumo de Conteúdo</Label>
               <Textarea
                 id="contentHabit"
                 value={persona.contentHabit}
@@ -267,7 +225,7 @@ export default function CriarPersona() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="mainObjective">Objetivo Principal *</Label>
+              <Label htmlFor="mainObjective">Objetivo Principal</Label>
               <Textarea
                 id="mainObjective"
                 value={persona.mainObjective}
@@ -278,7 +236,7 @@ export default function CriarPersona() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="challenge">Desafios *</Label>
+              <Label htmlFor="challenge">Desafios</Label>
               <Textarea
                 id="challenge"
                 value={persona.challenge}
@@ -289,7 +247,7 @@ export default function CriarPersona() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="favoriteVoice">Tom de Voz Preferido *</Label>
+              <Label htmlFor="favoriteVoice">Tom de Voz Preferido</Label>
               <Input
                 id="favoriteVoice"
                 value={persona.favoriteVoice}
@@ -299,7 +257,7 @@ export default function CriarPersona() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="buyJourney">Jornada de Compra *</Label>
+              <Label htmlFor="buyJourney">Jornada de Compra</Label>
               <Textarea
                 id="buyJourney"
                 value={persona.buyJourney}
@@ -310,7 +268,7 @@ export default function CriarPersona() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="interestTrigger">Gatilhos de Interesse *</Label>
+              <Label htmlFor="interestTrigger">Gatilhos de Interesse</Label>
               <Textarea
                 id="interestTrigger"
                 value={persona.interestTrigger}
@@ -333,11 +291,6 @@ export default function CriarPersona() {
                 {persona.favoriteVoice && <div><strong>Tom preferido:</strong> {persona.favoriteVoice}</div>}
               </div>
             </div>
-
-            <Button onClick={salvarPersona} className="w-full">
-              <Save className="h-4 w-4 mr-2" />
-              Salvar Persona
-            </Button>
           </CardContent>
         </Card>
       </div>

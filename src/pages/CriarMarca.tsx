@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Building, Save } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { localStorageService } from "@/services/localStorage";
 
 export default function CriarMarca() {
   const [formData, setFormData] = useState({
@@ -41,54 +41,31 @@ export default function CriarMarca() {
       return;
     }
 
-    // Validar campos obrigatórios
-    const requiredFields = [
-      'valueProposition', 'brandPillars', 'brandMission', 'brandInspiration',
-      'currentObjective', 'numericTarget', 'restrictions', 'brandHashtags',
-      'referenceContents', 'importantDates', 'relevantContent', 'brandCrisis'
-    ];
-
-    for (const field of requiredFields) {
-      if (!formData[field as keyof typeof formData] || formData[field as keyof typeof formData] === '') {
-        toast.error(`Por favor, preencha o campo ${field}`);
-        return;
-      }
+    if (!formData.valueProposition.trim()) {
+      toast.error("Por favor, insira a proposta de valor");
+      return;
     }
 
     try {
-      const { error } = await supabase
-        .from("Brand")
-        .insert([
-          {
-            ...formData,
-            teamId: 1, // Usando teamId fixo por enquanto
-            userId: 1  // Usando userId fixo por enquanto
-          }
-        ]);
-
-      if (error) {
-        console.error("Erro ao salvar marca:", error);
-        toast.error("Erro ao criar marca");
-      } else {
-        toast.success("Marca criada com sucesso!");
-        setFormData({
-          name: "",
-          valueProposition: "",
-          brandPillars: "",
-          brandMission: "",
-          brandInspiration: "",
-          currentObjective: "",
-          numericTarget: "",
-          restrictions: "",
-          brandHashtags: "",
-          referenceContents: "",
-          importantDates: "",
-          relevantContent: "",
-          brandCrisis: "",
-          influencersAction: 0,
-          brandManual: 0
-        });
-      }
+      localStorageService.createBrand(formData);
+      toast.success("Marca criada com sucesso!");
+      setFormData({
+        name: "",
+        valueProposition: "",
+        brandPillars: "",
+        brandMission: "",
+        brandInspiration: "",
+        currentObjective: "",
+        numericTarget: "",
+        restrictions: "",
+        brandHashtags: "",
+        referenceContents: "",
+        importantDates: "",
+        relevantContent: "",
+        brandCrisis: "",
+        influencersAction: 0,
+        brandManual: 0
+      });
     } catch (error) {
       console.error("Erro:", error);
       toast.error("Erro inesperado");
@@ -109,7 +86,7 @@ export default function CriarMarca() {
         <CardHeader>
           <CardTitle>Informações da Marca</CardTitle>
           <CardDescription>
-            Preencha todos os dados para criar uma marca completa
+            Preencha os dados para criar uma marca
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -124,7 +101,7 @@ export default function CriarMarca() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="numericTarget">Meta Numérica *</Label>
+              <Label htmlFor="numericTarget">Meta Numérica</Label>
               <Input
                 id="numericTarget"
                 value={formData.numericTarget}
@@ -146,7 +123,7 @@ export default function CriarMarca() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="brandPillars">Pilares da Marca *</Label>
+            <Label htmlFor="brandPillars">Pilares da Marca</Label>
             <Textarea
               id="brandPillars"
               value={formData.brandPillars}
@@ -158,7 +135,7 @@ export default function CriarMarca() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="brandMission">Missão da Marca *</Label>
+              <Label htmlFor="brandMission">Missão da Marca</Label>
               <Textarea
                 id="brandMission"
                 value={formData.brandMission}
@@ -168,7 +145,7 @@ export default function CriarMarca() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="brandInspiration">Inspiração da Marca *</Label>
+              <Label htmlFor="brandInspiration">Inspiração da Marca</Label>
               <Textarea
                 id="brandInspiration"
                 value={formData.brandInspiration}
@@ -180,7 +157,7 @@ export default function CriarMarca() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="currentObjective">Objetivo Atual *</Label>
+            <Label htmlFor="currentObjective">Objetivo Atual</Label>
             <Textarea
               id="currentObjective"
               value={formData.currentObjective}
@@ -192,7 +169,7 @@ export default function CriarMarca() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="brandHashtags">Hashtags da Marca *</Label>
+              <Label htmlFor="brandHashtags">Hashtags da Marca</Label>
               <Input
                 id="brandHashtags"
                 value={formData.brandHashtags}
@@ -201,7 +178,7 @@ export default function CriarMarca() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="importantDates">Datas Importantes *</Label>
+              <Label htmlFor="importantDates">Datas Importantes</Label>
               <Input
                 id="importantDates"
                 value={formData.importantDates}
@@ -212,7 +189,7 @@ export default function CriarMarca() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="restrictions">Restrições *</Label>
+            <Label htmlFor="restrictions">Restrições</Label>
             <Textarea
               id="restrictions"
               value={formData.restrictions}
@@ -223,7 +200,7 @@ export default function CriarMarca() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="referenceContents">Conteúdos de Referência *</Label>
+            <Label htmlFor="referenceContents">Conteúdos de Referência</Label>
             <Textarea
               id="referenceContents"
               value={formData.referenceContents}
@@ -234,7 +211,7 @@ export default function CriarMarca() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="relevantContent">Conteúdo Relevante *</Label>
+            <Label htmlFor="relevantContent">Conteúdo Relevante</Label>
             <Textarea
               id="relevantContent"
               value={formData.relevantContent}
@@ -245,7 +222,7 @@ export default function CriarMarca() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="brandCrisis">Gestão de Crise *</Label>
+            <Label htmlFor="brandCrisis">Gestão de Crise</Label>
             <Textarea
               id="brandCrisis"
               value={formData.brandCrisis}
