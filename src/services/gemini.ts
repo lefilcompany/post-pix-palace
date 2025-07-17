@@ -20,12 +20,12 @@ export class OpenAIService {
 
   async generateImage(request: OpenAIImageRequest): Promise<OpenAIImageResponse> {
     try {
-      // Criar prompt baseado nos dados do formulário
-      const prompt = this.createImagePrompt(request);
+      // Primeiro, usar GPT-4o para gerar um prompt melhor
+      const enhancedPrompt = await this.generateEnhancedPrompt(request);
       
-      console.log("Generating image with OpenAI DALL-E for prompt:", prompt);
+      console.log("Generating image with OpenAI DALL-E using GPT-4o enhanced prompt:", enhancedPrompt);
       
-      // Fazer chamada para OpenAI DALL-E API
+      // Fazer chamada para OpenAI DALL-E API com o prompt melhorado
       const response = await fetch(`${this.baseUrl}/images/generations`, {
         method: 'POST',
         headers: {
@@ -34,10 +34,10 @@ export class OpenAIService {
         },
         body: JSON.stringify({
           model: "dall-e-3",
-          prompt: prompt,
+          prompt: enhancedPrompt,
           n: 1,
           size: this.getImageSize(request.platform),
-          quality: "standard",
+          quality: "hd",
           style: request.imageStyle === 'fotografico' ? 'natural' : 'vivid'
         })
       });
@@ -55,6 +55,44 @@ export class OpenAIService {
     } catch (error) {
       console.error("Erro ao gerar imagem:", error);
       throw new Error("Falha ao gerar imagem com OpenAI");
+    }
+  }
+
+  private async generateEnhancedPrompt(request: OpenAIImageRequest): Promise<string> {
+    try {
+      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "system",
+              content: "Você é um especialista em criar prompts para geração de imagens DALL-E. Crie prompts detalhados, específicos e visualmente ricos."
+            },
+            {
+              role: "user",
+              content: this.createImagePrompt(request)
+            }
+          ],
+          max_tokens: 500,
+          temperature: 0.7
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`OpenAI GPT-4o API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data.choices[0].message.content;
+    } catch (error) {
+      console.error("Erro ao gerar prompt melhorado:", error);
+      // Fallback para o prompt original se GPT-4o falhar
+      return this.createImagePrompt(request);
     }
   }
 
