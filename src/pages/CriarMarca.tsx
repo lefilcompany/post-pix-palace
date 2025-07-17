@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -86,7 +87,7 @@ export default function CriarMarca() {
         <CardHeader>
           <CardTitle>Informações da Marca</CardTitle>
           <CardDescription>
-            Preencha os dados para criar uma marca
+            Preencha os dados para criar uma marca completa
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -128,7 +129,7 @@ export default function CriarMarca() {
               id="brandPillars"
               value={formData.brandPillars}
               onChange={(e) => handleInputChange("brandPillars", e.target.value)}
-              placeholder="Quais são os pilares que sustentam a marca?"
+              placeholder="Quais são os pilares que sustentam a marca? (ex: inovação, qualidade, sustentabilidade)"
               rows={3}
             />
           </div>
@@ -150,7 +151,7 @@ export default function CriarMarca() {
                 id="brandInspiration"
                 value={formData.brandInspiration}
                 onChange={(e) => handleInputChange("brandInspiration", e.target.value)}
-                placeholder="O que inspira a marca?"
+                placeholder="O que inspira a marca? Quais são suas referências?"
                 rows={3}
               />
             </div>
@@ -162,7 +163,7 @@ export default function CriarMarca() {
               id="currentObjective"
               value={formData.currentObjective}
               onChange={(e) => handleInputChange("currentObjective", e.target.value)}
-              placeholder="Qual é o objetivo atual da marca?"
+              placeholder="Qual é o objetivo atual da marca? O que pretende alcançar?"
               rows={2}
             />
           </div>
@@ -183,18 +184,18 @@ export default function CriarMarca() {
                 id="importantDates"
                 value={formData.importantDates}
                 onChange={(e) => handleInputChange("importantDates", e.target.value)}
-                placeholder="Ex: Aniversário da empresa, Black Friday"
+                placeholder="Ex: Aniversário da empresa, Black Friday, lançamentos"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="restrictions">Restrições</Label>
+            <Label htmlFor="restrictions">Restrições da Marca</Label>
             <Textarea
               id="restrictions"
               value={formData.restrictions}
               onChange={(e) => handleInputChange("restrictions", e.target.value)}
-              placeholder="Quais são as restrições da marca? (cores, temas, abordagens a evitar)"
+              placeholder="Quais são as restrições da marca? (cores, temas, abordagens a evitar, termos proibidos)"
               rows={2}
             />
           </div>
@@ -205,7 +206,7 @@ export default function CriarMarca() {
               id="referenceContents"
               value={formData.referenceContents}
               onChange={(e) => handleInputChange("referenceContents", e.target.value)}
-              placeholder="Descreva conteúdos que servem de referência para a marca"
+              placeholder="Descreva conteúdos que servem de referência para a marca (posts, campanhas, estilos)"
               rows={2}
             />
           </div>
@@ -216,18 +217,18 @@ export default function CriarMarca() {
               id="relevantContent"
               value={formData.relevantContent}
               onChange={(e) => handleInputChange("relevantContent", e.target.value)}
-              placeholder="Que tipo de conteúdo é relevante para a marca?"
+              placeholder="Que tipo de conteúdo é relevante para a marca? (educativo, entretenimento, promocional)"
               rows={2}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="brandCrisis">Gestão de Crise</Label>
+            <Label htmlFor="brandCrisis">Gestão de Crise da Marca</Label>
             <Textarea
               id="brandCrisis"
               value={formData.brandCrisis}
               onChange={(e) => handleInputChange("brandCrisis", e.target.value)}
-              placeholder="Como a marca deve lidar com situações de crise?"
+              placeholder="Como a marca deve lidar com situações de crise? Qual o tom e abordagem?"
               rows={2}
             />
           </div>
@@ -243,8 +244,8 @@ export default function CriarMarca() {
                   <SelectValue placeholder="Selecione uma opção" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="0">Não</SelectItem>
-                  <SelectItem value="1">Sim</SelectItem>
+                  <SelectItem value="0">Não trabalha com influenciadores</SelectItem>
+                  <SelectItem value="1">Sim, trabalha com influenciadores</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -258,8 +259,8 @@ export default function CriarMarca() {
                   <SelectValue placeholder="Selecione uma opção" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="0">Não</SelectItem>
-                  <SelectItem value="1">Sim</SelectItem>
+                  <SelectItem value="0">Não possui manual da marca</SelectItem>
+                  <SelectItem value="1">Sim, possui manual da marca</SelectItem>
                 </SelectContent>
               </Select>
             </div>
