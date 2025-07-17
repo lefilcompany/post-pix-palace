@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,96 +8,56 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Palette, Save, Plus, X } from "lucide-react";
 import { toast } from "sonner";
-import { localStorageService, Brand } from "@/services/localStorage";
 
 export default function CriarTema() {
-  const [brands, setBrands] = useState<Brand[]>([]);
   const [tema, setTema] = useState({
-    brandId: "",
-    title: "",
-    description: "",
-    colors: "",
-    voiceAI: "",
-    universeTarget: "",
-    hashtags: "",
-    objectives: "",
-    addInfo: "",
+    nome: "",
+    descricao: "",
+    categoria: "",
+    corPrimaria: "#3b82f6",
+    corSecundaria: "#6366f1",
+    estilo: "",
+    palavrasChave: [] as string[],
   });
 
   const [novaPalavra, setNovaPalavra] = useState("");
-  const [palavrasChave, setPalavrasChave] = useState<string[]>([]);
-
-  useEffect(() => {
-    fetchBrands();
-  }, []);
-
-  const fetchBrands = () => {
-    try {
-      const data = localStorageService.getBrands();
-      setBrands(data);
-    } catch (error) {
-      console.error("Erro ao buscar marcas:", error);
-      toast.error("Erro ao carregar marcas");
-    }
-  };
 
   const adicionarPalavraChave = () => {
-    if (novaPalavra.trim() && !palavrasChave.includes(novaPalavra.trim())) {
-      setPalavrasChave(prev => [...prev, novaPalavra.trim()]);
+    if (novaPalavra.trim() && !tema.palavrasChave.includes(novaPalavra.trim())) {
+      setTema(prev => ({
+        ...prev,
+        palavrasChave: [...prev.palavrasChave, novaPalavra.trim()]
+      }));
       setNovaPalavra("");
     }
   };
 
   const removerPalavraChave = (palavra: string) => {
-    setPalavrasChave(prev => prev.filter(p => p !== palavra));
+    setTema(prev => ({
+      ...prev,
+      palavrasChave: prev.palavrasChave.filter(p => p !== palavra)
+    }));
   };
 
-  const salvarTema = async () => {
-    if (!tema.title.trim()) {
-      toast.error("Por favor, insira o título do tema");
+  const salvarTema = () => {
+    if (!tema.nome || !tema.descricao || !tema.categoria) {
+      toast.error("Preencha todos os campos obrigatórios");
       return;
     }
 
-    if (!tema.brandId) {
-      toast.error("Por favor, selecione uma marca");
-      return;
-    }
-
-    if (!tema.description.trim()) {
-      toast.error("Por favor, insira a descrição do tema");
-      return;
-    }
-
-    try {
-      localStorageService.createTheme({
-        brandId: parseInt(tema.brandId),
-        title: tema.title,
-        description: tema.description,
-        colors: tema.colors || "#3b82f6, #6366f1",
-        voiceAI: tema.voiceAI || "Profissional e engajador",
-        universeTarget: tema.universeTarget || "Público geral",
-        hashtags: palavrasChave.join(", "),
-        objectives: tema.objectives || "Criar conteúdo visual atrativo",
-        addInfo: tema.addInfo || "Informações adicionais sobre o tema"
-      });
-
-      toast.success("Tema criado com sucesso!");
-      setTema({
-        brandId: "",
-        title: "",
-        description: "",
-        colors: "",
-        voiceAI: "",
-        universeTarget: "",
-        hashtags: "",
-        objectives: "",
-        addInfo: "",
-      });
-      setPalavrasChave([]);
-    } catch (error) {
-      console.error("Erro:", error);
-      toast.error("Erro inesperado");
-    }
+    // Aqui você salvaria o tema no backend
+    toast.success("Tema criado com sucesso!");
+    
+    // Reset form
+    setTema({
+      nome: "",
+      descricao: "",
+      categoria: "",
+      corPrimaria: "#3b82f6",
+      corSecundaria: "#6366f1",
+      estilo: "",
+      palavrasChave: [],
+    });
   };
 
   return (
@@ -106,7 +66,7 @@ export default function CriarTema() {
         <Palette className="h-8 w-8 text-primary" />
         <div>
           <h1 className="text-3xl font-bold text-foreground">Criar Tema</h1>
-          <p className="text-muted-foreground">Defina temas visuais para seus conteúdos</p>
+          <p className="text-muted-foreground">Defina temas visuais para seus posts</p>
         </div>
       </div>
 
@@ -121,90 +81,110 @@ export default function CriarTema() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="brandId">Marca *</Label>
-              <Select value={tema.brandId} onValueChange={(value) => setTema(prev => ({ ...prev, brandId: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione uma marca" />
-                </SelectTrigger>
-                <SelectContent>
-                  {brands.map((brand) => (
-                    <SelectItem key={brand.id} value={brand.id.toString()}>
-                      {brand.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="title">Título do Tema *</Label>
+              <Label htmlFor="nome">Nome do Tema *</Label>
               <Input
-                id="title"
-                value={tema.title}
-                onChange={(e) => setTema(prev => ({ ...prev, title: e.target.value }))}
+                id="nome"
+                value={tema.nome}
+                onChange={(e) => setTema(prev => ({ ...prev, nome: e.target.value }))}
                 placeholder="Ex: Verão Tropical"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Descrição *</Label>
+              <Label htmlFor="categoria">Categoria *</Label>
+              <Select 
+                value={tema.categoria} 
+                onValueChange={(value) => setTema(prev => ({ ...prev, categoria: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="corporativo">Corporativo</SelectItem>
+                  <SelectItem value="casual">Casual</SelectItem>
+                  <SelectItem value="elegante">Elegante</SelectItem>
+                  <SelectItem value="moderno">Moderno</SelectItem>
+                  <SelectItem value="vintage">Vintage</SelectItem>
+                  <SelectItem value="minimalista">Minimalista</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="descricao">Descrição *</Label>
               <Textarea
-                id="description"
-                value={tema.description}
-                onChange={(e) => setTema(prev => ({ ...prev, description: e.target.value }))}
+                id="descricao"
+                value={tema.descricao}
+                onChange={(e) => setTema(prev => ({ ...prev, descricao: e.target.value }))}
                 placeholder="Descreva o estilo e características do tema"
                 rows={3}
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="colors">Paleta de Cores</Label>
-              <Input
-                id="colors"
-                value={tema.colors}
-                onChange={(e) => setTema(prev => ({ ...prev, colors: e.target.value }))}
-                placeholder="Ex: #FF6B35, #004E89, #FFFFFF"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="corPrimaria">Cor Primária</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="color"
+                    id="corPrimaria"
+                    value={tema.corPrimaria}
+                    onChange={(e) => setTema(prev => ({ ...prev, corPrimaria: e.target.value }))}
+                    className="w-12 h-10 p-1"
+                  />
+                  <Input
+                    value={tema.corPrimaria}
+                    onChange={(e) => setTema(prev => ({ ...prev, corPrimaria: e.target.value }))}
+                    placeholder="#3b82f6"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="corSecundaria">Cor Secundária</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="color"
+                    id="corSecundaria"
+                    value={tema.corSecundaria}
+                    onChange={(e) => setTema(prev => ({ ...prev, corSecundaria: e.target.value }))}
+                    className="w-12 h-10 p-1"
+                  />
+                  <Input
+                    value={tema.corSecundaria}
+                    onChange={(e) => setTema(prev => ({ ...prev, corSecundaria: e.target.value }))}
+                    placeholder="#6366f1"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="voiceAI">Tom de Voz da IA</Label>
-              <Input
-                id="voiceAI"
-                value={tema.voiceAI}
-                onChange={(e) => setTema(prev => ({ ...prev, voiceAI: e.target.value }))}
-                placeholder="Ex: Profissional, descontraído, inspirador"
-              />
+              <Label htmlFor="estilo">Estilo Visual</Label>
+              <Select 
+                value={tema.estilo} 
+                onValueChange={(value) => setTema(prev => ({ ...prev, estilo: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um estilo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="fotografico">Fotográfico</SelectItem>
+                  <SelectItem value="ilustrativo">Ilustrativo</SelectItem>
+                  <SelectItem value="grafico">Gráfico</SelectItem>
+                  <SelectItem value="artistico">Artístico</SelectItem>
+                  <SelectItem value="minimalista">Minimalista</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="universeTarget">Universo Target</Label>
-              <Input
-                id="universeTarget"
-                value={tema.universeTarget}
-                onChange={(e) => setTema(prev => ({ ...prev, universeTarget: e.target.value }))}
-                placeholder="Ex: Jovens adultos, Profissionais de tecnologia"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="objectives">Objetivos</Label>
-              <Textarea
-                id="objectives"
-                value={tema.objectives}
-                onChange={(e) => setTema(prev => ({ ...prev, objectives: e.target.value }))}
-                placeholder="Quais são os objetivos deste tema?"
-                rows={2}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Hashtags/Palavras-chave</Label>
+              <Label>Palavras-chave</Label>
               <div className="flex gap-2">
                 <Input
                   value={novaPalavra}
                   onChange={(e) => setNovaPalavra(e.target.value)}
-                  placeholder="Adicionar hashtag"
+                  placeholder="Adicionar palavra-chave"
                   onKeyPress={(e) => e.key === 'Enter' && adicionarPalavraChave()}
                 />
                 <Button onClick={adicionarPalavraChave} size="icon" variant="outline">
@@ -212,7 +192,7 @@ export default function CriarTema() {
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2 mt-2">
-                {palavrasChave.map((palavra, index) => (
+                {tema.palavrasChave.map((palavra, index) => (
                   <Badge key={index} variant="secondary" className="gap-1">
                     {palavra}
                     <Button
@@ -226,17 +206,6 @@ export default function CriarTema() {
                   </Badge>
                 ))}
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="addInfo">Informações Adicionais</Label>
-              <Textarea
-                id="addInfo"
-                value={tema.addInfo}
-                onChange={(e) => setTema(prev => ({ ...prev, addInfo: e.target.value }))}
-                placeholder="Informações extras sobre o tema"
-                rows={2}
-              />
             </div>
 
             <Button onClick={salvarTema} className="w-full">
@@ -258,30 +227,27 @@ export default function CriarTema() {
             <div 
               className="aspect-square rounded-lg p-6 flex items-center justify-center text-white font-bold text-xl"
               style={{
-                background: tema.colors ? `linear-gradient(135deg, ${tema.colors.split(',')[0]?.trim() || '#3b82f6'}, ${tema.colors.split(',')[1]?.trim() || '#6366f1'})` : 'linear-gradient(135deg, #3b82f6, #6366f1)'
+                background: `linear-gradient(135deg, ${tema.corPrimaria}, ${tema.corSecundaria})`
               }}
             >
-              {tema.title || "Nome do Tema"}
+              {tema.nome || "Nome do Tema"}
             </div>
             
             <div className="mt-4 space-y-2">
               <div className="text-sm">
-                <span className="font-medium">Marca:</span> {brands.find(b => b.id.toString() === tema.brandId)?.name || "Não selecionada"}
+                <span className="font-medium">Categoria:</span> {tema.categoria || "Não definida"}
               </div>
               <div className="text-sm">
-                <span className="font-medium">Tom de Voz:</span> {tema.voiceAI || "Não definido"}
+                <span className="font-medium">Estilo:</span> {tema.estilo || "Não definido"}
               </div>
               <div className="text-sm">
-                <span className="font-medium">Descrição:</span> {tema.description || "Não definida"}
+                <span className="font-medium">Descrição:</span> {tema.descricao || "Não definida"}
               </div>
-              <div className="text-sm">
-                <span className="font-medium">Universo Target:</span> {tema.universeTarget || "Não definido"}
-              </div>
-              {palavrasChave.length > 0 && (
+              {tema.palavrasChave.length > 0 && (
                 <div className="text-sm">
-                  <span className="font-medium">Hashtags:</span>
+                  <span className="font-medium">Palavras-chave:</span>
                   <div className="flex flex-wrap gap-1 mt-1">
-                    {palavrasChave.map((palavra, index) => (
+                    {tema.palavrasChave.map((palavra, index) => (
                       <Badge key={index} variant="outline" className="text-xs">
                         {palavra}
                       </Badge>

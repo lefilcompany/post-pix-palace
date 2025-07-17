@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { GeminiService } from "@/services/gemini";
+import { OpenAIService } from "@/services/openai";
 import { toast } from "sonner";
 
 interface Message {
@@ -23,12 +23,12 @@ interface PostData {
 }
 
 interface UseEditChatProps {
-  geminiService: GeminiService;
+  openAIService: OpenAIService;
   currentImageUrl: string;
   postData: PostData;
 }
 
-export function useEditChat({ geminiService, currentImageUrl, postData }: UseEditChatProps) {
+export function useEditChat({ openAIService, currentImageUrl, postData }: UseEditChatProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -70,7 +70,7 @@ ${postData.callToAction ? `- Call to Action: ${postData.callToAction}` : ''}
 
 IMPORTANTE: Lembre-se sempre dessas informações ao sugerir edições na imagem. Mantenha a coerência com o conceito original do post.`;
       
-      const chatResponse = await geminiService.generateChatResponse(userMessage, context);
+      const chatResponse = await openAIService.generateChatResponse(userMessage, context);
       
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -90,7 +90,7 @@ IMPORTANTE: Lembre-se sempre dessas informações ao sugerir edições na imagem
           userMessage.toLowerCase().includes('estilo')) {
         
         try {
-          const editResult = await geminiService.editImage(currentImageUrl, userMessage);
+          const editResult = await openAIService.editImage(currentImageUrl, userMessage);
           onImageUpdate(editResult.imageUrl);
           
           // Adicionar mensagem de sucesso
@@ -130,7 +130,7 @@ IMPORTANTE: Lembre-se sempre dessas informações ao sugerir edições na imagem
     } finally {
       setIsLoading(false);
     }
-  }, [geminiService, currentImageUrl, postData, isLoading]);
+  }, [openAIService, currentImageUrl, postData, isLoading]);
 
   return {
     messages,

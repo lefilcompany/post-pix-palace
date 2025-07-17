@@ -5,12 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Loader2, Send, Bot, User, Wand2 } from "lucide-react";
 import { useEditChat } from "@/hooks/useEditChat";
-import { GeminiService } from "@/services/gemini";
+import { OpenAIService } from "@/services/openai";
 
 interface EditChatProps {
   currentImageUrl: string;
   onImageUpdate: (newImageUrl: string) => void;
-  geminiService: GeminiService;
+  openAIService: OpenAIService;
   postData: {
     title: string;
     content: string;
@@ -20,9 +20,9 @@ interface EditChatProps {
   };
 }
 
-export function EditChat({ currentImageUrl, onImageUpdate, geminiService, postData }: EditChatProps) {
+export function EditChat({ currentImageUrl, onImageUpdate, openAIService, postData }: EditChatProps) {
   const { messages, isLoading, sendMessage } = useEditChat({
-    geminiService,
+    openAIService,
     currentImageUrl,
     postData,
   });
