@@ -4,7 +4,7 @@ import { ImageViewer } from "@/components/ImageViewer";
 import { EditChat } from "@/components/EditChat";
 import { ApiKeyInput } from "@/components/ApiKeyInput";
 import { ExamplePosts } from "@/components/ExamplePosts";
-import { createOpenAIService, OpenAIService } from "@/services/openai";
+import { createGeminiService, GeminiService } from "@/services/gemini";
 import { toast } from "sonner";
 import { Loader2, Sparkles } from "lucide-react";
 
@@ -21,29 +21,19 @@ interface PostFormData {
 
 export default function PostGenerator() {
   const [apiKey, setApiKey] = useState<string>("");
-  const [openAIService, setOpenAIService] = useState<OpenAIService | null>(null);
+  const [geminiService, setGeminiService] = useState<GeminiService | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string>("");
   const [postData, setPostData] = useState<PostFormData | null>(null);
   const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
-    // Verificar se existe uma chave da API salva no localStorage
-    const savedApiKey = localStorage.getItem('openai_api_key');
-    if (savedApiKey) {
-      setApiKey(savedApiKey);
-      setOpenAIService(createOpenAIService(savedApiKey));
-    }
+    setGeminiService(createGeminiService());
   }, []);
 
-  const handleApiKeySet = (key: string) => {
-    setApiKey(key);
-    setOpenAIService(createOpenAIService(key));
-  };
-
   const handleGeneratePost = async (formData: PostFormData) => {
-    if (!openAIService) {
-      toast.error("Serviço OpenAI não configurado");
+    if (!geminiService) {
+      toast.error("Serviço Gemini não configurado");
       return;
     }
 
@@ -51,13 +41,13 @@ export default function PostGenerator() {
     setPostData(formData);
 
     try {
-      const result = await openAIService.generateImage(formData);
+      const result = await geminiService.generateImage(formData);
       setGeneratedImage(result.imageUrl);
       setShowChat(true);
       toast.success("Post gerado com sucesso!");
     } catch (error) {
       console.error("Erro ao gerar post:", error);
-      toast.error("Erro ao gerar o post. Verifique sua chave da API e tente novamente.");
+      toast.error("Erro ao gerar o post. Tente novamente.");
     } finally {
       setIsLoading(false);
     }
@@ -67,19 +57,6 @@ export default function PostGenerator() {
     setGeneratedImage(newImageUrl);
     toast.success("Imagem atualizada com sucesso!");
   };
-
-  const handleResetApiKey = () => {
-    localStorage.removeItem('openai_api_key');
-    setApiKey("");
-    setOpenAIService(null);
-    setGeneratedImage("");
-    setPostData(null);
-    setShowChat(false);
-  };
-
-  if (!apiKey || !openAIService) {
-    return <ApiKeyInput onApiKeySet={handleApiKeySet} />;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
@@ -94,16 +71,10 @@ export default function PostGenerator() {
               <div>
                 <h1 className="text-2xl font-bold">Marketing Post Generator</h1>
                 <p className="text-sm text-muted-foreground">
-                  Powered by OpenAI DALL-E 3
+                  Powered by Google Gemini
                 </p>
               </div>
             </div>
-            <button
-              onClick={handleResetApiKey}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Alterar API Key
-            </button>
           </div>
         </div>
       </header>
@@ -163,7 +134,7 @@ export default function PostGenerator() {
                 <EditChat
                   currentImageUrl={generatedImage}
                   onImageUpdate={handleImageUpdate}
-                  openAIService={openAIService!}
+                  geminiService={geminiService!}
                   postData={postData!}
                 />
               </div>

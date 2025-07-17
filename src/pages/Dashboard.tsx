@@ -150,9 +150,11 @@ export default function Dashboard() {
                 Acompanhe os seus últimos conteúdos criados
               </CardDescription>
             </div>
-            <Button variant="outline" size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Ver Todos
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/historico">
+                <Plus className="h-4 w-4 mr-2" />
+                Ver Todos
+              </Link>
             </Button>
           </CardHeader>
           <CardContent>
@@ -202,21 +204,21 @@ export default function Dashboard() {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="h-auto p-4 flex-col gap-2">
-                <Link to="/criar-tema">
+                <Link to="/temas">
                   <Palette className="h-6 w-6" />
-                  <span>Criar Tema</span>
+                  <span>Temas</span>
                 </Link>
               </Button>
               <Button asChild variant="outline" className="h-auto p-4 flex-col gap-2">
-                <Link to="/criar-persona">
+                <Link to="/personas">
                   <Users className="h-6 w-6" />
-                  <span>Criar Persona</span>
+                  <span>Personas</span>
                 </Link>
               </Button>
               <Button asChild variant="outline" className="h-auto p-4 flex-col gap-2">
-                <Link to="/criar-marca">
+                <Link to="/marcas">
                   <Building className="h-6 w-6" />
-                  <span>Criar Marca</span>
+                  <span>Marcas</span>
                 </Link>
               </Button>
             </div>

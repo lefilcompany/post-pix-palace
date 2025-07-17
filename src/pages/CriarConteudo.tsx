@@ -3,7 +3,7 @@ import { PostForm } from "@/components/PostForm";
 import { ImageViewer } from "@/components/ImageViewer";
 import { EditChat } from "@/components/EditChat";
 import { ExamplePosts } from "@/components/ExamplePosts";
-import { createOpenAIService, OpenAIService } from "@/services/openai";
+import { createGeminiService, GeminiService } from "@/services/gemini";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Sparkles } from "lucide-react";
@@ -20,21 +20,19 @@ interface PostFormData {
 }
 
 export default function CriarConteudo() {
-  const [openAIService, setOpenAIService] = useState<OpenAIService | null>(null);
+  const [geminiService, setGeminiService] = useState<GeminiService | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string>("");
   const [postData, setPostData] = useState<PostFormData | null>(null);
   const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
-    // Usar a API key fixa fornecida
-    const fixedApiKey = "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";
-    setOpenAIService(createOpenAIService(fixedApiKey));
+    setGeminiService(createGeminiService());
   }, []);
 
   const handleGeneratePost = async (formData: PostFormData) => {
-    if (!openAIService) {
-      toast.error("Serviço OpenAI não configurado");
+    if (!geminiService) {
+      toast.error("Serviço Gemini não configurado");
       return;
     }
 
@@ -42,7 +40,7 @@ export default function CriarConteudo() {
     setPostData(formData);
 
     try {
-      const result = await openAIService.generateImage(formData);
+      const result = await geminiService.generateImage(formData);
       setGeneratedImage(result.imageUrl);
       setShowChat(true);
       
@@ -106,7 +104,7 @@ export default function CriarConteudo() {
               <div>
                 <h1 className="text-2xl font-bold">Criar Conteúdo</h1>
                 <p className="text-sm text-muted-foreground">
-                  Powered by OpenAI GPT-4o
+                  Powered by Google Gemini
                 </p>
               </div>
             </div>
@@ -169,7 +167,7 @@ export default function CriarConteudo() {
                 <EditChat
                   currentImageUrl={generatedImage}
                   onImageUpdate={handleImageUpdate}
-                  openAIService={openAIService!}
+                  geminiService={geminiService!}
                   postData={postData!}
                 />
               </div>
