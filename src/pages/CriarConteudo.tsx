@@ -109,9 +109,9 @@ export default function CriarConteudo() {
         titulo: formData.titulo,
         conteudo: formData.conteudo,
         plataforma: formData.plataforma,
-        marca_id: "",
-        tema_id: "",
-        persona_id: "",
+        marca_id: "", // TODO: Implement brand selection
+        tema_id: "", // TODO: Implement theme selection
+        persona_id: "", // TODO: Implement persona selection
         tom: formData.tom,
         palavras_chave: keywords,
         estilo_imagem: formData.estilo_imagem,

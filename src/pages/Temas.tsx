@@ -71,12 +71,12 @@ export default function Temas() {
       const newTheme = localStorageService.saveTheme({
         nome: formData.nome,
         descricao: formData.descricao,
-        marca_id: "",
+        marca_id: "", // TODO: Implement brand selection
         cores_principais: [formData.cor_primaria],
         cores_secundarias: [formData.cor_secundaria],
         tipografia_principal: "Arial",
         tipografia_secundaria: "Arial",
-        estilo_visual: formData.estilo,
+        estilo_visual: formData.estilo || "Moderno",
         elementos_graficos: formData.palavras_chave,
       });
       setThemes(prev => [...prev, newTheme]);

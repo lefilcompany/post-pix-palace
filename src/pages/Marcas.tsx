@@ -59,7 +59,7 @@ export default function Marcas() {
         setor: formData.setor,
         publico_alvo: formData.publico_alvo,
         tom_voz: formData.tom_voz,
-        valores: formData.valores.split(',').map(v => v.trim()),
+        valores: formData.valores ? formData.valores.split(',').map(v => v.trim()) : [],
         cores_primarias: [formData.cor_primaria],
         cores_secundarias: [formData.cor_secundaria],
         tipografia: "Arial",

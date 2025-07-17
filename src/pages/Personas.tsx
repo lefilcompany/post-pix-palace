@@ -56,14 +56,14 @@ export default function Personas() {
     try {
       const newPersona = localStorageService.savePersona({
         nome: formData.nome,
-        idade: parseInt(formData.idade),
+        idade: parseInt(formData.idade) || 0,
         profissao: formData.profissao,
-        marca_id: "",
+        marca_id: "", // TODO: Implement brand selection
         descricao: `${formData.profissao} de ${formData.idade} anos`,
-        objetivos: formData.objetivos.split(',').map(o => o.trim()),
-        dores: formData.dores.split(',').map(d => d.trim()),
-        comportamentos: formData.comportamento_digital.split(',').map(c => c.trim()),
-        canais_preferidos: formData.plataformas_preferidas.split(',').map(p => p.trim()),
+        objetivos: formData.objetivos ? formData.objetivos.split(',').map(o => o.trim()) : [],
+        dores: formData.dores ? formData.dores.split(',').map(d => d.trim()) : [],
+        comportamentos: formData.comportamento_digital ? formData.comportamento_digital.split(',').map(c => c.trim()) : [],
+        canais_preferidos: formData.plataformas_preferidas ? formData.plataformas_preferidas.split(',').map(p => p.trim()) : [],
       });
       setPersonas(prev => [...prev, newPersona]);
       
