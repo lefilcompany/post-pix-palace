@@ -1,1 +1,15 @@
 project_id = "irobxpqdcqiufshlptft"
+
+[auth]
+enabled = true
+site_url = "https://a722aa7a-6699-45f5-8bad-7b41eb773ca1.lovableproject.com"
+additional_redirect_urls = ["https://localhost:3000"]
+
+[functions.create-content-plan]
+verify_jwt = true
+
+[functions.generate-content]
+verify_jwt = true
+
+[functions.review-content]
+verify_jwt = true

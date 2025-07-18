@@ -91,8 +91,174 @@ export type Database = {
           },
         ]
       }
+      content_plans: {
+        Row: {
+          ai_suggestions: string | null
+          brand_id: number | null
+          content_types: string[] | null
+          created_at: string
+          description: string | null
+          duration_days: number | null
+          frequency: string | null
+          id: string
+          objectives: string[] | null
+          platforms: string[] | null
+          post_count: number | null
+          target_audience: string | null
+          team_id: number | null
+          theme_id: number | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_suggestions?: string | null
+          brand_id?: number | null
+          content_types?: string[] | null
+          created_at?: string
+          description?: string | null
+          duration_days?: number | null
+          frequency?: string | null
+          id?: string
+          objectives?: string[] | null
+          platforms?: string[] | null
+          post_count?: number | null
+          target_audience?: string | null
+          team_id?: number | null
+          theme_id?: number | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_suggestions?: string | null
+          brand_id?: number | null
+          content_types?: string[] | null
+          created_at?: string
+          description?: string | null
+          duration_days?: number | null
+          frequency?: string | null
+          id?: string
+          objectives?: string[] | null
+          platforms?: string[] | null
+          post_count?: number | null
+          target_audience?: string | null
+          team_id?: number | null
+          theme_id?: number | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_plans_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_plans_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_plans_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_reviews: {
+        Row: {
+          ai_analysis: string | null
+          brand_id: number | null
+          content_image_url: string | null
+          content_text: string | null
+          content_video_url: string | null
+          created_at: string
+          engagement_tips: string | null
+          id: string
+          improvement_suggestions: string | null
+          negative_points: string | null
+          overall_score: number | null
+          positive_points: string | null
+          review_type: string
+          team_id: number | null
+          theme_id: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_analysis?: string | null
+          brand_id?: number | null
+          content_image_url?: string | null
+          content_text?: string | null
+          content_video_url?: string | null
+          created_at?: string
+          engagement_tips?: string | null
+          id?: string
+          improvement_suggestions?: string | null
+          negative_points?: string | null
+          overall_score?: number | null
+          positive_points?: string | null
+          review_type: string
+          team_id?: number | null
+          theme_id?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_analysis?: string | null
+          brand_id?: number | null
+          content_image_url?: string | null
+          content_text?: string | null
+          content_video_url?: string | null
+          created_at?: string
+          engagement_tips?: string | null
+          id?: string
+          improvement_suggestions?: string | null
+          negative_points?: string | null
+          overall_score?: number | null
+          positive_points?: string | null
+          review_type?: string
+          team_id?: number | null
+          theme_id?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_reviews_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_reviews_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_reviews_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contents: {
         Row: {
+          brand_id: number | null
+          content_type: string | null
           created_at: string | null
           feeling: string | null
           format: string | null
@@ -101,12 +267,19 @@ export type Database = {
           main_message: string | null
           micro_result: string
           next_step: string | null
+          plan_id: string | null
+          platform: string | null
           response_ai: string | null
+          scheduled_for: string | null
+          status: string | null
           team_id: number | null
+          theme_id: number | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          brand_id?: number | null
+          content_type?: string | null
           created_at?: string | null
           feeling?: string | null
           format?: string | null
@@ -115,12 +288,19 @@ export type Database = {
           main_message?: string | null
           micro_result: string
           next_step?: string | null
+          plan_id?: string | null
+          platform?: string | null
           response_ai?: string | null
+          scheduled_for?: string | null
+          status?: string | null
           team_id?: number | null
+          theme_id?: number | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          brand_id?: number | null
+          content_type?: string | null
           created_at?: string | null
           feeling?: string | null
           format?: string | null
@@ -129,17 +309,43 @@ export type Database = {
           main_message?: string | null
           micro_result?: string
           next_step?: string | null
+          plan_id?: string | null
+          platform?: string | null
           response_ai?: string | null
+          scheduled_for?: string | null
+          status?: string | null
           team_id?: number | null
+          theme_id?: number | null
           updated_at?: string | null
           user_id?: string
         }
         Relationships: [
           {
+            foreignKeyName: "contents_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contents_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "content_plans"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "contents_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contents_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "themes"
             referencedColumns: ["id"]
           },
         ]
