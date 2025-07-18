@@ -24,7 +24,7 @@ export default function Auth() {
 
   // Check if user needs team setup
   useEffect(() => {
-    if (user && profile) {
+    if (user && profile !== null) {
       if (!profile.current_team_id) {
         setShowTeamOnboarding(true);
       } else {
@@ -32,12 +32,6 @@ export default function Auth() {
       }
     }
   }, [user, profile, navigate]);
-
-  // Redirect if already authenticated and has team
-  if (user && profile?.current_team_id) {
-    navigate("/");
-    return null;
-  }
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -49,11 +43,9 @@ export default function Auth() {
 
     setIsLoading(true);
     const { error } = await signIn(formData.email, formData.password);
-    
-    if (!error) {
-      navigate("/");
-    }
     setIsLoading(false);
+    
+    // Navigation will be handled by useEffect after profile is loaded
   };
 
   const handleSignUp = async (e: React.FormEvent) => {

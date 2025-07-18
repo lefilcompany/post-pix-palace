@@ -38,7 +38,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setProfile(userProfile);
       } catch (error) {
         console.error('Error fetching profile:', error);
+        setProfile(null);
       }
+    } else {
+      setProfile(null);
     }
   };
 
@@ -52,9 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         // Fetch profile when user logs in
         if (session?.user) {
-          setTimeout(() => {
-            refreshProfile();
-          }, 0);
+          refreshProfile();
         } else {
           setProfile(null);
         }
@@ -68,9 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
       
       if (session?.user) {
-        setTimeout(() => {
-          refreshProfile();
-        }, 0);
+        refreshProfile();
       }
     });
 
