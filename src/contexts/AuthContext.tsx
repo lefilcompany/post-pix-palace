@@ -31,9 +31,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const refreshProfile = async () => {
-    console.log('RefreshProfile called, user:', user);
-    if (user) {
+  const refreshProfile = async (currentUser?: User | null) => {
+    const userToUse = currentUser || user;
+    console.log('RefreshProfile called, user:', userToUse);
+    if (userToUse) {
       try {
         const userProfile = await teamService.getUserProfile();
         console.log('Profile fetched:', userProfile);
@@ -60,7 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Fetch profile when user logs in
         if (session?.user) {
           console.log('Session exists, refreshing profile');
-          refreshProfile();
+          refreshProfile(session.user);
         } else {
           console.log('No session, setting profile to null');
           setProfile(null);
@@ -75,7 +76,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
       
       if (session?.user) {
-        refreshProfile();
+        refreshProfile(session.user);
       }
     });
 
@@ -83,13 +84,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName
         }
@@ -99,7 +97,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (error) {
       toast.error("Erro ao criar conta: " + error.message);
     } else {
-      toast.success("Conta criada com sucesso! Verifique seu email.");
+      toast.success("Conta criada com sucesso!");
     }
     
     return { error };
@@ -137,7 +135,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signUp,
     signIn,
     signOut,
-    refreshProfile,
+    refreshProfile: () => refreshProfile(),
   };
 
   return (
