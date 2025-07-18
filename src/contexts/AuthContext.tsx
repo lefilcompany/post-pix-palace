@@ -32,15 +32,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const refreshProfile = async () => {
+    console.log('RefreshProfile called, user:', user);
     if (user) {
       try {
         const userProfile = await teamService.getUserProfile();
+        console.log('Profile fetched:', userProfile);
         setProfile(userProfile);
       } catch (error) {
         console.error('Error fetching profile:', error);
         setProfile(null);
       }
     } else {
+      console.log('No user, setting profile to null');
       setProfile(null);
     }
   };
@@ -49,14 +52,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
         
         // Fetch profile when user logs in
         if (session?.user) {
+          console.log('Session exists, refreshing profile');
           refreshProfile();
         } else {
+          console.log('No session, setting profile to null');
           setProfile(null);
         }
       }

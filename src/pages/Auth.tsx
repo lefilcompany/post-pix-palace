@@ -24,10 +24,14 @@ export default function Auth() {
 
   // Check if user needs team setup
   useEffect(() => {
+    console.log('Auth useEffect - user:', user, 'profile:', profile);
     if (user && profile !== null) {
+      console.log('User and profile exist, checking team_id:', profile.current_team_id);
       if (!profile.current_team_id) {
+        console.log('No team_id, showing onboarding');
         setShowTeamOnboarding(true);
       } else {
+        console.log('Has team_id, navigating to dashboard');
         navigate("/");
       }
     }
