@@ -19,6 +19,7 @@ export type Database = {
           brand_competitors: string | null
           brand_crisis: string | null
           brand_differentials: string | null
+          brand_hashtags: string | null
           brand_inspiration: string | null
           brand_manual: number | null
           brand_mission: string | null
@@ -27,10 +28,16 @@ export type Database = {
           brand_promise: string | null
           brand_voice: string | null
           created_at: string | null
+          current_objective: string | null
           id: number
+          important_dates: string | null
           influencers_action: number | null
           is_deleted: number | null
           name: string
+          numeric_target: string | null
+          reference_contents: string | null
+          relevant_content: string | null
+          restrictions: string | null
           target_audience: string | null
           team_id: number | null
           updated_at: string | null
@@ -41,6 +48,7 @@ export type Database = {
           brand_competitors?: string | null
           brand_crisis?: string | null
           brand_differentials?: string | null
+          brand_hashtags?: string | null
           brand_inspiration?: string | null
           brand_manual?: number | null
           brand_mission?: string | null
@@ -49,10 +57,16 @@ export type Database = {
           brand_promise?: string | null
           brand_voice?: string | null
           created_at?: string | null
+          current_objective?: string | null
           id?: number
+          important_dates?: string | null
           influencers_action?: number | null
           is_deleted?: number | null
           name: string
+          numeric_target?: string | null
+          reference_contents?: string | null
+          relevant_content?: string | null
+          restrictions?: string | null
           target_audience?: string | null
           team_id?: number | null
           updated_at?: string | null
@@ -63,6 +77,7 @@ export type Database = {
           brand_competitors?: string | null
           brand_crisis?: string | null
           brand_differentials?: string | null
+          brand_hashtags?: string | null
           brand_inspiration?: string | null
           brand_manual?: number | null
           brand_mission?: string | null
@@ -71,10 +86,16 @@ export type Database = {
           brand_promise?: string | null
           brand_voice?: string | null
           created_at?: string | null
+          current_objective?: string | null
           id?: number
+          important_dates?: string | null
           influencers_action?: number | null
           is_deleted?: number | null
           name?: string
+          numeric_target?: string | null
+          reference_contents?: string | null
+          relevant_content?: string | null
+          restrictions?: string | null
           target_audience?: string | null
           team_id?: number | null
           updated_at?: string | null
@@ -264,9 +285,12 @@ export type Database = {
           format: string | null
           id: number
           image_url: string | null
+          is_deleted: number | null
+          is_promote: number | null
           main_message: string | null
           micro_result: string
           next_step: string | null
+          persona_id: number | null
           plan_id: string | null
           platform: string | null
           response_ai: string | null
@@ -276,6 +300,7 @@ export type Database = {
           theme_id: number | null
           updated_at: string | null
           user_id: string
+          visual_reference: number | null
         }
         Insert: {
           brand_id?: number | null
@@ -285,9 +310,12 @@ export type Database = {
           format?: string | null
           id?: number
           image_url?: string | null
+          is_deleted?: number | null
+          is_promote?: number | null
           main_message?: string | null
           micro_result: string
           next_step?: string | null
+          persona_id?: number | null
           plan_id?: string | null
           platform?: string | null
           response_ai?: string | null
@@ -297,6 +325,7 @@ export type Database = {
           theme_id?: number | null
           updated_at?: string | null
           user_id: string
+          visual_reference?: number | null
         }
         Update: {
           brand_id?: number | null
@@ -306,9 +335,12 @@ export type Database = {
           format?: string | null
           id?: number
           image_url?: string | null
+          is_deleted?: number | null
+          is_promote?: number | null
           main_message?: string | null
           micro_result?: string
           next_step?: string | null
+          persona_id?: number | null
           plan_id?: string | null
           platform?: string | null
           response_ai?: string | null
@@ -318,6 +350,7 @@ export type Database = {
           theme_id?: number | null
           updated_at?: string | null
           user_id?: string
+          visual_reference?: number | null
         }
         Relationships: [
           {
@@ -325,6 +358,13 @@ export type Database = {
             columns: ["brand_id"]
             isOneToOne: false
             referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contents_persona_id_fkey"
+            columns: ["persona_id"]
+            isOneToOne: false
+            referencedRelation: "personas"
             referencedColumns: ["id"]
           },
           {
@@ -353,10 +393,18 @@ export type Database = {
       personas: {
         Row: {
           age: number | null
+          beliefs: string | null
+          brand_id: number | null
+          buy_journey: string | null
           challenge: string | null
+          content_habit: string | null
           created_at: string | null
+          favorite_voice: string | null
+          gender: string | null
           id: number
+          interest_trigger: string | null
           interests: string[] | null
+          is_deleted: number | null
           location: string | null
           main_objective: string | null
           name: string
@@ -369,10 +417,18 @@ export type Database = {
         }
         Insert: {
           age?: number | null
+          beliefs?: string | null
+          brand_id?: number | null
+          buy_journey?: string | null
           challenge?: string | null
+          content_habit?: string | null
           created_at?: string | null
+          favorite_voice?: string | null
+          gender?: string | null
           id?: number
+          interest_trigger?: string | null
           interests?: string[] | null
+          is_deleted?: number | null
           location?: string | null
           main_objective?: string | null
           name: string
@@ -385,10 +441,18 @@ export type Database = {
         }
         Update: {
           age?: number | null
+          beliefs?: string | null
+          brand_id?: number | null
+          buy_journey?: string | null
           challenge?: string | null
+          content_habit?: string | null
           created_at?: string | null
+          favorite_voice?: string | null
+          gender?: string | null
           id?: number
+          interest_trigger?: string | null
           interests?: string[] | null
+          is_deleted?: number | null
           location?: string | null
           main_objective?: string | null
           name?: string
@@ -401,6 +465,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "personas_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "personas_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
@@ -409,32 +480,311 @@ export type Database = {
           },
         ]
       }
+      planning: {
+        Row: {
+          add_info: string | null
+          brand_id: number
+          created_at: string | null
+          id: number
+          is_deleted: number | null
+          platform: string
+          posts_number: number
+          response_ai: string | null
+          team_id: number
+          theme_id: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          add_info?: string | null
+          brand_id: number
+          created_at?: string | null
+          id?: never
+          is_deleted?: number | null
+          platform: string
+          posts_number?: number
+          response_ai?: string | null
+          team_id: number
+          theme_id: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          add_info?: string | null
+          brand_id?: number
+          created_at?: string | null
+          id?: never
+          is_deleted?: number | null
+          platform?: string
+          posts_number?: number
+          response_ai?: string | null
+          team_id?: number
+          theme_id?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planning_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planning_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planning_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plans: {
+        Row: {
+          brands_limit: number
+          content_limit: number
+          created_at: string | null
+          id: number
+          is_deleted: number | null
+          members_limit: number
+          name: string
+          personas_limit: number
+          plan_type: Database["public"]["Enums"]["plan_type"]
+          planning_limit: number
+          price: number
+          review_limit: number
+          themes_limit: number
+          updated_at: string | null
+        }
+        Insert: {
+          brands_limit?: number
+          content_limit?: number
+          created_at?: string | null
+          id?: never
+          is_deleted?: number | null
+          members_limit?: number
+          name: string
+          personas_limit?: number
+          plan_type?: Database["public"]["Enums"]["plan_type"]
+          planning_limit?: number
+          price: number
+          review_limit?: number
+          themes_limit?: number
+          updated_at?: string | null
+        }
+        Update: {
+          brands_limit?: number
+          content_limit?: number
+          created_at?: string | null
+          id?: never
+          is_deleted?: number | null
+          members_limit?: number
+          name?: string
+          personas_limit?: number
+          plan_type?: Database["public"]["Enums"]["plan_type"]
+          planning_limit?: number
+          price?: number
+          review_limit?: number
+          themes_limit?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
+          city_user: string | null
           created_at: string | null
           current_team_id: number | null
           full_name: string | null
           id: string
+          is_deleted: number | null
+          state_user: string | null
+          stripe_customer_id: string | null
           updated_at: string | null
+          user_name: string | null
         }
         Insert: {
+          city_user?: string | null
           created_at?: string | null
           current_team_id?: number | null
           full_name?: string | null
           id: string
+          is_deleted?: number | null
+          state_user?: string | null
+          stripe_customer_id?: string | null
           updated_at?: string | null
+          user_name?: string | null
         }
         Update: {
+          city_user?: string | null
           created_at?: string | null
           current_team_id?: number | null
           full_name?: string | null
           id?: string
+          is_deleted?: number | null
+          state_user?: string | null
+          stripe_customer_id?: string | null
           updated_at?: string | null
+          user_name?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "profiles_current_team_id_fkey"
             columns: ["current_team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          brand_id: number
+          created_at: string | null
+          ia_text: string
+          id: number
+          is_deleted: number | null
+          response_ai: string | null
+          team_id: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          brand_id: number
+          created_at?: string | null
+          ia_text: string
+          id?: never
+          is_deleted?: number | null
+          response_ai?: string | null
+          team_id: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          brand_id?: number
+          created_at?: string | null
+          ia_text?: string
+          id?: never
+          is_deleted?: number | null
+          response_ai?: string | null
+          team_id?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      solicitations: {
+        Row: {
+          created_at: string | null
+          id: number
+          is_deleted: number | null
+          status: number | null
+          team_id: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: never
+          is_deleted?: number | null
+          status?: number | null
+          team_id: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: never
+          is_deleted?: number | null
+          status?: number | null
+          team_id?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solicitations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          created_at: string | null
+          end_date: string | null
+          id: number
+          is_deleted: number | null
+          plan_id: number
+          start_date: string | null
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_subscription_id: string | null
+          team_id: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          end_date?: string | null
+          id?: never
+          is_deleted?: number | null
+          plan_id: number
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_subscription_id?: string | null
+          team_id: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string | null
+          id?: never
+          is_deleted?: number | null
+          plan_id?: number
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_subscription_id?: string | null
+          team_id?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_team_id_fkey"
+            columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
             referencedColumns: ["id"]
@@ -516,6 +866,7 @@ export type Database = {
           admin_user_id: string
           created_at: string | null
           id: number
+          is_deleted: number | null
           name: string
           team_code: string
           updated_at: string | null
@@ -524,6 +875,7 @@ export type Database = {
           admin_user_id: string
           created_at?: string | null
           id?: number
+          is_deleted?: number | null
           name: string
           team_code: string
           updated_at?: string | null
@@ -532,6 +884,7 @@ export type Database = {
           admin_user_id?: string
           created_at?: string | null
           id?: number
+          is_deleted?: number | null
           name?: string
           team_code?: string
           updated_at?: string | null
@@ -540,42 +893,64 @@ export type Database = {
       }
       themes: {
         Row: {
+          add_info: string | null
+          brand_id: number | null
+          colors: string | null
           created_at: string | null
           description: string | null
           hashtags: string[] | null
           id: number
+          is_deleted: number | null
           objectives: string[] | null
           team_id: number | null
           title: string
+          universe_target: string | null
           updated_at: string | null
           user_id: string
           voice_ai: string | null
         }
         Insert: {
+          add_info?: string | null
+          brand_id?: number | null
+          colors?: string | null
           created_at?: string | null
           description?: string | null
           hashtags?: string[] | null
           id?: number
+          is_deleted?: number | null
           objectives?: string[] | null
           team_id?: number | null
           title: string
+          universe_target?: string | null
           updated_at?: string | null
           user_id: string
           voice_ai?: string | null
         }
         Update: {
+          add_info?: string | null
+          brand_id?: number | null
+          colors?: string | null
           created_at?: string | null
           description?: string | null
           hashtags?: string[] | null
           id?: number
+          is_deleted?: number | null
           objectives?: string[] | null
           team_id?: number | null
           title?: string
+          universe_target?: string | null
           updated_at?: string | null
           user_id?: string
           voice_ai?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "themes_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "themes_team_id_fkey"
             columns: ["team_id"]
@@ -604,7 +979,18 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      content_status: "draft" | "review" | "approved" | "published" | "archived"
+      content_type: "post" | "story" | "reel" | "video" | "carousel" | "article"
+      plan_type: "free" | "basic" | "premium" | "enterprise"
+      platform_type:
+        | "instagram"
+        | "facebook"
+        | "linkedin"
+        | "twitter"
+        | "tiktok"
+        | "youtube"
+      subscription_status: "active" | "cancelled" | "expired" | "pending"
+      user_role: "admin" | "member" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -731,6 +1117,20 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      content_status: ["draft", "review", "approved", "published", "archived"],
+      content_type: ["post", "story", "reel", "video", "carousel", "article"],
+      plan_type: ["free", "basic", "premium", "enterprise"],
+      platform_type: [
+        "instagram",
+        "facebook",
+        "linkedin",
+        "twitter",
+        "tiktok",
+        "youtube",
+      ],
+      subscription_status: ["active", "cancelled", "expired", "pending"],
+      user_role: ["admin", "member", "viewer"],
+    },
   },
 } as const
