@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,19 +7,34 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, UserPlus, LogIn, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { TeamOnboarding } from "@/components/TeamOnboarding";
+import { toast } from "sonner";
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, profile, refreshProfile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [showTeamOnboarding, setShowTeamOnboarding] = useState(false);
   const [formData, setFormData] = useState({
+    fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
 
-  // Redirect if already authenticated
-  if (user) {
+  // Check if user needs team setup
+  useEffect(() => {
+    if (user && profile) {
+      if (!profile.current_team_id) {
+        setShowTeamOnboarding(true);
+      } else {
+        navigate("/");
+      }
+    }
+  }, [user, profile, navigate]);
+
+  // Redirect if already authenticated and has team
+  if (user && profile?.current_team_id) {
     navigate("/");
     return null;
   }
@@ -43,19 +58,29 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.email || !formData.password || !formData.confirmPassword) return;
+    if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword) {
+      toast.error("Todos os campos são obrigatórios");
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
+      toast.error("As senhas não coincidem");
       return;
     }
 
     setIsLoading(true);
-    const { error } = await signUp(formData.email, formData.password);
+    const { error } = await signUp(formData.email, formData.password, formData.fullName);
     
     if (!error) {
-      setFormData({ email: "", password: "", confirmPassword: "" });
+      setFormData({ fullName: "", email: "", password: "", confirmPassword: "" });
     }
     setIsLoading(false);
+  };
+
+  const handleTeamOnboardingComplete = async () => {
+    setShowTeamOnboarding(false);
+    await refreshProfile();
+    navigate("/");
   };
 
   return (
@@ -130,6 +155,17 @@ export default function Auth() {
               <TabsContent value="signup" className="space-y-4">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
+                    <Label htmlFor="signup-fullname">Nome Completo</Label>
+                    <Input
+                      id="signup-fullname"
+                      type="text"
+                      value={formData.fullName}
+                      onChange={(e) => handleInputChange("fullName", e.target.value)}
+                      placeholder="Seu nome completo"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
                     <Input
                       id="signup-email"
@@ -181,6 +217,11 @@ export default function Auth() {
           </CardContent>
         </Card>
       </div>
+      
+      <TeamOnboarding 
+        isOpen={showTeamOnboarding} 
+        onComplete={handleTeamOnboardingComplete}
+      />
     </div>
   );
 }

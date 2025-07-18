@@ -81,7 +81,15 @@ export type Database = {
           user_id?: string
           value_proposition?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "brands_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contents: {
         Row: {
@@ -94,6 +102,7 @@ export type Database = {
           micro_result: string
           next_step: string | null
           response_ai: string | null
+          team_id: number | null
           updated_at: string | null
           user_id: string
         }
@@ -107,6 +116,7 @@ export type Database = {
           micro_result: string
           next_step?: string | null
           response_ai?: string | null
+          team_id?: number | null
           updated_at?: string | null
           user_id: string
         }
@@ -120,10 +130,19 @@ export type Database = {
           micro_result?: string
           next_step?: string | null
           response_ai?: string | null
+          team_id?: number | null
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "contents_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       personas: {
         Row: {
@@ -138,6 +157,7 @@ export type Database = {
           pain_points: string[] | null
           position_degree: string | null
           preferred_platforms: string[] | null
+          team_id: number | null
           updated_at: string | null
           user_id: string
         }
@@ -153,6 +173,7 @@ export type Database = {
           pain_points?: string[] | null
           position_degree?: string | null
           preferred_platforms?: string[] | null
+          team_id?: number | null
           updated_at?: string | null
           user_id: string
         }
@@ -168,8 +189,146 @@ export type Database = {
           pain_points?: string[] | null
           position_degree?: string | null
           preferred_platforms?: string[] | null
+          team_id?: number | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personas_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          current_team_id: number | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_team_id?: number | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_team_id?: number | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_current_team_id_fkey"
+            columns: ["current_team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_invitations: {
+        Row: {
+          created_at: string | null
+          id: number
+          status: string
+          team_id: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          status?: string
+          team_id: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          status?: string
+          team_id?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_invitations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_members: {
+        Row: {
+          id: number
+          joined_at: string | null
+          role: string
+          status: string
+          team_id: number
+          user_id: string
+        }
+        Insert: {
+          id?: number
+          joined_at?: string | null
+          role?: string
+          status?: string
+          team_id: number
+          user_id: string
+        }
+        Update: {
+          id?: number
+          joined_at?: string | null
+          role?: string
+          status?: string
+          team_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          admin_user_id: string
+          created_at: string | null
+          id: number
+          name: string
+          team_code: string
+          updated_at: string | null
+        }
+        Insert: {
+          admin_user_id: string
+          created_at?: string | null
+          id?: number
+          name: string
+          team_code: string
+          updated_at?: string | null
+        }
+        Update: {
+          admin_user_id?: string
+          created_at?: string | null
+          id?: number
+          name?: string
+          team_code?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -180,6 +339,7 @@ export type Database = {
           hashtags: string[] | null
           id: number
           objectives: string[] | null
+          team_id: number | null
           title: string
           updated_at: string | null
           user_id: string
@@ -191,6 +351,7 @@ export type Database = {
           hashtags?: string[] | null
           id?: number
           objectives?: string[] | null
+          team_id?: number | null
           title: string
           updated_at?: string | null
           user_id: string
@@ -202,12 +363,21 @@ export type Database = {
           hashtags?: string[] | null
           id?: number
           objectives?: string[] | null
+          team_id?: number | null
           title?: string
           updated_at?: string | null
           user_id?: string
           voice_ai?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "themes_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
