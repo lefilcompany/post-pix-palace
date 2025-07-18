@@ -46,11 +46,11 @@ export default function VisualizarConteudo() {
 
     setIsRegenerating(true);
     try {
-      const prompt = editPrompt || `Regenerar imagem para o conteúdo: ${content.microResult}`;
+      const prompt = editPrompt || `Regenerar imagem para o conteúdo: ${content.micro_result}`;
       
       const imageResponse = await geminiService.generateImage({
-        title: content.microResult,
-        content: content.mainMessage + (editPrompt ? ` - Modificação: ${editPrompt}` : ""),
+        title: content.micro_result,
+        content: content.main_message + (editPrompt ? ` - Modificação: ${editPrompt}` : ""),
         tone: content.feeling,
         platform: content.format,
         targetAudience: "Público-alvo",
@@ -60,7 +60,7 @@ export default function VisualizarConteudo() {
       });
 
       const updatedContent = await supabaseService.updateContent(content.id, {
-        imageUrl: imageResponse.imageUrl,
+        image_url: imageResponse.imageUrl,
       });
 
       if (updatedContent) {
@@ -78,10 +78,10 @@ export default function VisualizarConteudo() {
   };
 
   const handleDownload = () => {
-    if (content?.imageUrl) {
+    if (content?.image_url) {
       const link = document.createElement('a');
-      link.href = content.imageUrl;
-      link.download = `${content.microResult}.jpg`;
+      link.href = content.image_url;
+      link.download = `${content.micro_result}.jpg`;
       link.click();
     }
   };
@@ -90,13 +90,13 @@ export default function VisualizarConteudo() {
     if (content) {
       try {
         await navigator.share({
-          title: content.microResult,
-          text: content.mainMessage,
-          url: content.imageUrl,
+          title: content.micro_result,
+          text: content.main_message,
+          url: content.image_url,
         });
       } catch (error) {
         // Fallback para cópia do link
-        navigator.clipboard.writeText(content.imageUrl || "");
+        navigator.clipboard.writeText(content.image_url || "");
         toast.success("Link da imagem copiado para a área de transferência!");
       }
     }
@@ -124,9 +124,9 @@ export default function VisualizarConteudo() {
         
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">{content.microResult}</h1>
+            <h1 className="text-3xl font-bold">{content.micro_result}</h1>
             <p className="text-muted-foreground">
-              Criado em {new Date(content.createdAt || "").toLocaleDateString()} para {content.format}
+              Criado em {new Date(content.created_at || "").toLocaleDateString()} para {content.format}
             </p>
           </div>
           
@@ -156,8 +156,8 @@ export default function VisualizarConteudo() {
               <div className="space-y-4">
                 <div className="relative">
                   <img
-                    src={content.imageUrl || ""}
-                    alt={content.microResult}
+                    src={content.image_url || ""}
+                    alt={content.micro_result}
                     className="w-full h-auto rounded-lg shadow-lg"
                   />
                 </div>
@@ -220,7 +220,7 @@ export default function VisualizarConteudo() {
             <div>
               <Label className="text-sm font-medium">Conteúdo</Label>
               <p className="text-sm text-muted-foreground mt-1">
-                {content.mainMessage}
+                {content.main_message}
               </p>
             </div>
 
@@ -243,14 +243,14 @@ export default function VisualizarConteudo() {
             <div>
               <Label className="text-sm font-medium">Próximo Passo</Label>
               <p className="text-sm text-muted-foreground mt-1">
-                {content.nextStep}
+                {content.next_step}
               </p>
             </div>
 
             <div>
               <Label className="text-sm font-medium">Resposta da IA</Label>
               <p className="text-sm text-muted-foreground mt-1">
-                {content.responseAI}
+                {content.response_ai}
               </p>
             </div>
           </CardContent>

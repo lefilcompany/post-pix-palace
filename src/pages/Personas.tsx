@@ -66,10 +66,9 @@ export default function Personas() {
         location: formData.localizacao,
         main_objective: formData.objetivos,
         challenge: formData.dores,
-        favoriteVoice: formData.plataformas_preferidas,
-        buyJourney: formData.escolaridade,
-        interestTrigger: formData.renda,
-        gender: "Não informado",
+        interests: formData.plataformas_preferidas ? [formData.plataformas_preferidas] : [],
+        preferred_platforms: formData.escolaridade ? [formData.escolaridade] : [],
+        pain_points: formData.renda ? [formData.renda] : [],
       });
       setPersonas(prev => [...prev, newPersona]);
       
