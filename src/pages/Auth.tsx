@@ -15,6 +15,7 @@ export default function Auth() {
   const { signIn, signUp, user, profile, refreshProfile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showTeamOnboarding, setShowTeamOnboarding] = useState(false);
+  const [justLoggedIn, setJustLoggedIn] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -22,20 +23,21 @@ export default function Auth() {
     confirmPassword: "",
   });
 
-  // Check if user needs team setup
+  // Check if user needs team setup after login
   useEffect(() => {
-    console.log('Auth useEffect - user:', user, 'profile:', profile);
-    if (user && profile !== null) {
-      console.log('User and profile exist, checking team_id:', profile.current_team_id);
+    console.log('Auth useEffect - user:', user, 'profile:', profile, 'justLoggedIn:', justLoggedIn);
+    if (user && profile !== null && justLoggedIn) {
+      console.log('User and profile exist after login, checking team_id:', profile.current_team_id);
       if (!profile.current_team_id) {
         console.log('No team_id, showing onboarding');
         setShowTeamOnboarding(true);
+        setJustLoggedIn(false); // Reset flag
       } else {
         console.log('Has team_id, navigating to dashboard');
         navigate("/");
       }
     }
-  }, [user, profile, navigate]);
+  }, [user, profile, justLoggedIn, navigate]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -49,7 +51,9 @@ export default function Auth() {
     const { error } = await signIn(formData.email, formData.password);
     setIsLoading(false);
     
-    // Navigation will be handled by useEffect after profile is loaded
+    if (!error) {
+      setJustLoggedIn(true); // Set flag when login is successful
+    }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
