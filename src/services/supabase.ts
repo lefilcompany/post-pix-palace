@@ -1,84 +1,80 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Tables, TablesInsert } from "@/integrations/supabase/types";
 
-export type Brand = Tables<"Brand">;
-export type BrandInsert = TablesInsert<"Brand">;
-export type Content = Tables<"Content">;
-export type ContentInsert = TablesInsert<"Content">;
-export type Persona = Tables<"Persona">;
-export type PersonaInsert = TablesInsert<"Persona">;
-export type Theme = Tables<"Theme">;
-export type ThemeInsert = TablesInsert<"Theme">;
-export type User = Tables<"User">;
-export type UserInsert = TablesInsert<"User">;
-export type Team = Tables<"Team">;
-export type TeamInsert = TablesInsert<"Team">;
+// Define types for database tables and their insert types
+export type Brand = Tables<"brands">;
+export type BrandInsert = TablesInsert<"brands">;
+export type Content = Tables<"contents">;
+export type ContentInsert = TablesInsert<"contents">;
+export type Persona = Tables<"personas">;
+export type PersonaInsert = TablesInsert<"personas">;
+export type Theme = Tables<"themes">;
+export type ThemeInsert = TablesInsert<"themes">;
 
-// Tipos simplificados para criação
+// Create data types for forms
 export type CreateBrandData = {
   name: string;
-  valueProposition: string;
-  brandPillars: string;
-  brandMission: string;
-  brandInspiration: string;
-  currentObjective: string;
-  numericTarget: string;
-  restrictions: string;
-  brandHashtags: string;
-  referenceContents: string;
-  importantDates: string;
-  relevantContent: string;
-  brandCrisis: string;
+  value_proposition?: string;
+  brand_pillars?: string;
+  brand_mission?: string;
+  brand_inspiration?: string;
+  target_audience?: string;
+  brand_personality?: string;
+  brand_voice?: string;
+  brand_competitors?: string;
+  brand_differentials?: string;
+  brand_promise?: string;
+  brand_crisis?: string;
 };
 
 export type CreateThemeData = {
   title: string;
-  description: string;
-  colors: string;
-  voiceAI: string;
-  universeTarget: string;
-  hashtags: string;
-  objectives: string;
-  addInfo: string;
+  description?: string;
+  voice_ai?: string;
+  hashtags?: string[];
+  objectives?: string[];
 };
 
 export type CreatePersonaData = {
   name: string;
-  age: string;
-  positionDegree: string;
-  location: string;
-  beliefs: string;
-  contentHabit: string;
-  mainObjective: string;
-  challenge: string;
-  favoriteVoice: string;
-  buyJourney: string;
-  interestTrigger: string;
-  gender: string;
+  age?: number;
+  position_degree?: string;
+  location?: string;
+  main_objective?: string;
+  challenge?: string;
+  interests?: string[];
+  pain_points?: string[];
+  preferred_platforms?: string[];
 };
 
 export type CreateContentData = {
-  brandId: number;
-  themeId: number;
-  personaId: number;
-  isPromote: number;
-  visualReference: number;
-  microResult: string;
-  mainMessage: string;
-  feeling: string;
-  format: string;
-  nextStep: string;
-  responseAI: string;
-  imageUrl: string;
+  micro_result: string;
+  main_message?: string;
+  feeling?: string;
+  format?: string;
+  image_url?: string;
+  next_step?: string;
+  response_ai?: string;
 };
 
 class SupabaseService {
+  // Helper function to get current user ID
+  private async getCurrentUserId(): Promise<string> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error("User not authenticated");
+    }
+    return user.id;
+  }
+
   // Brands
   async getBrands(): Promise<Brand[]> {
+    const userId = await this.getCurrentUserId();
     const { data, error } = await supabase
-      .from("Brand")
+      .from("brands")
       .select("*")
-      .eq("isDeleted", 0);
+      .eq("user_id", userId)
+      .eq("is_deleted", 0);
     
     if (error) {
       console.error("Erro ao buscar marcas:", error);
@@ -89,17 +85,14 @@ class SupabaseService {
   }
 
   async saveBrand(brand: CreateBrandData): Promise<Brand> {
+    const userId = await this.getCurrentUserId();
     const brandData: BrandInsert = {
       ...brand,
-      userId: 1, // TODO: Implementar autenticação
-      teamId: 1, // TODO: Implementar seleção de equipe
-      influencersAction: 0,
-      brandManual: 0,
-      isDeleted: 0,
+      user_id: userId,
     };
 
     const { data, error } = await supabase
-      .from("Brand")
+      .from("brands")
       .insert(brandData)
       .select()
       .single();
@@ -114,8 +107,8 @@ class SupabaseService {
 
   async deleteBrand(brandId: number): Promise<void> {
     const { error } = await supabase
-      .from("Brand")
-      .update({ isDeleted: 1 })
+      .from("brands")
+      .update({ is_deleted: 1 })
       .eq("id", brandId);
 
     if (error) {
@@ -126,10 +119,11 @@ class SupabaseService {
 
   // Themes
   async getThemes(): Promise<Theme[]> {
+    const userId = await this.getCurrentUserId();
     const { data, error } = await supabase
-      .from("Theme")
+      .from("themes")
       .select("*")
-      .eq("isDeleted", 0);
+      .eq("user_id", userId);
     
     if (error) {
       console.error("Erro ao buscar temas:", error);
@@ -140,15 +134,14 @@ class SupabaseService {
   }
 
   async saveTheme(theme: CreateThemeData): Promise<Theme> {
+    const userId = await this.getCurrentUserId();
     const themeData: ThemeInsert = {
       ...theme,
-      brandId: 1, // TODO: Implementar seleção de marca
-      teamId: 1, // TODO: Implementar seleção de equipe
-      isDeleted: 0,
+      user_id: userId,
     };
 
     const { data, error } = await supabase
-      .from("Theme")
+      .from("themes")
       .insert(themeData)
       .select()
       .single();
@@ -163,8 +156,8 @@ class SupabaseService {
 
   async deleteTheme(themeId: number): Promise<void> {
     const { error } = await supabase
-      .from("Theme")
-      .update({ isDeleted: 1 })
+      .from("themes")
+      .delete()
       .eq("id", themeId);
 
     if (error) {
@@ -175,10 +168,11 @@ class SupabaseService {
 
   // Personas
   async getPersonas(): Promise<Persona[]> {
+    const userId = await this.getCurrentUserId();
     const { data, error } = await supabase
-      .from("Persona")
+      .from("personas")
       .select("*")
-      .eq("isDeleted", 0);
+      .eq("user_id", userId);
     
     if (error) {
       console.error("Erro ao buscar personas:", error);
@@ -189,15 +183,14 @@ class SupabaseService {
   }
 
   async savePersona(persona: CreatePersonaData): Promise<Persona> {
+    const userId = await this.getCurrentUserId();
     const personaData: PersonaInsert = {
       ...persona,
-      brandId: 1, // TODO: Implementar seleção de marca
-      teamId: 1, // TODO: Implementar seleção de equipe
-      isDeleted: 0,
+      user_id: userId,
     };
 
     const { data, error } = await supabase
-      .from("Persona")
+      .from("personas")
       .insert(personaData)
       .select()
       .single();
@@ -212,8 +205,8 @@ class SupabaseService {
 
   async deletePersona(personaId: number): Promise<void> {
     const { error } = await supabase
-      .from("Persona")
-      .update({ isDeleted: 1 })
+      .from("personas")
+      .delete()
       .eq("id", personaId);
 
     if (error) {
@@ -224,10 +217,11 @@ class SupabaseService {
 
   // Content
   async getContents(): Promise<Content[]> {
+    const userId = await this.getCurrentUserId();
     const { data, error } = await supabase
-      .from("Content")
+      .from("contents")
       .select("*")
-      .eq("isDeleted", 0);
+      .eq("user_id", userId);
     
     if (error) {
       console.error("Erro ao buscar conteúdos:", error);
@@ -238,15 +232,14 @@ class SupabaseService {
   }
 
   async saveContent(content: CreateContentData): Promise<Content> {
+    const userId = await this.getCurrentUserId();
     const contentData: ContentInsert = {
       ...content,
-      userId: 1, // TODO: Implementar autenticação
-      teamId: 1, // TODO: Implementar seleção de equipe
-      isDeleted: 0,
+      user_id: userId,
     };
 
     const { data, error } = await supabase
-      .from("Content")
+      .from("contents")
       .insert(contentData)
       .select()
       .single();
@@ -261,10 +254,9 @@ class SupabaseService {
 
   async getContentById(id: number): Promise<Content | null> {
     const { data, error } = await supabase
-      .from("Content")
+      .from("contents")
       .select("*")
       .eq("id", id)
-      .eq("isDeleted", 0)
       .single();
 
     if (error) {
@@ -277,7 +269,7 @@ class SupabaseService {
 
   async updateContent(id: number, updates: Partial<Content>): Promise<Content | null> {
     const { data, error } = await supabase
-      .from("Content")
+      .from("contents")
       .update(updates)
       .eq("id", id)
       .select()
@@ -293,8 +285,8 @@ class SupabaseService {
 
   async deleteContent(contentId: number): Promise<void> {
     const { error } = await supabase
-      .from("Content")
-      .update({ isDeleted: 1 })
+      .from("contents")
+      .delete()
       .eq("id", contentId);
 
     if (error) {

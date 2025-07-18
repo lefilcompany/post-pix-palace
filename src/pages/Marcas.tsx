@@ -60,18 +60,11 @@ export default function Marcas() {
     try {
       const newBrand = await supabaseService.saveBrand({
         name: formData.nome,
-        valueProposition: formData.descricao,
-        brandPillars: formData.setor,
-        brandMission: formData.publico_alvo,
-        brandInspiration: formData.tom_voz,
-        currentObjective: formData.valores,
-        numericTarget: "0",
-        restrictions: "",
-        brandHashtags: "",
-        referenceContents: "",
-        importantDates: "",
-        relevantContent: "",
-        brandCrisis: "",
+        value_proposition: formData.descricao,
+        brand_pillars: formData.setor,
+        brand_mission: formData.publico_alvo,
+        brand_inspiration: formData.tom_voz,
+        target_audience: formData.valores,
       });
       setBrands(prev => [...prev, newBrand]);
       
@@ -309,7 +302,7 @@ export default function Marcas() {
                     <div>
                       <CardTitle className="text-lg">{brand.name}</CardTitle>
                       <Badge variant="secondary" className="text-xs">
-                        {brand.brandPillars}
+                        {brand.brand_pillars}
                       </Badge>
                     </div>
                   </div>
@@ -324,17 +317,17 @@ export default function Marcas() {
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-sm text-muted-foreground mb-3">
-                  {brand.valueProposition}
+                  {brand.value_proposition}
                 </p>
                 <div className="space-y-2">
-                  {brand.brandMission && (
+                  {brand.brand_mission && (
                     <div className="text-sm">
-                      <span className="font-medium">Missão:</span> {brand.brandMission}
+                      <span className="font-medium">Missão:</span> {brand.brand_mission}
                     </div>
                   )}
-                  {brand.brandInspiration && (
+                  {brand.brand_inspiration && (
                     <div className="text-sm">
-                      <span className="font-medium">Inspiração:</span> {brand.brandInspiration}
+                      <span className="font-medium">Inspiração:</span> {brand.brand_inspiration}
                     </div>
                   )}
                   <div className="flex items-center gap-2 mt-3">

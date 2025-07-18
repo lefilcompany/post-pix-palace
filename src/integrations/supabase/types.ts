@@ -14,7 +14,201 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      brands: {
+        Row: {
+          brand_competitors: string | null
+          brand_crisis: string | null
+          brand_differentials: string | null
+          brand_inspiration: string | null
+          brand_manual: number | null
+          brand_mission: string | null
+          brand_personality: string | null
+          brand_pillars: string | null
+          brand_promise: string | null
+          brand_voice: string | null
+          created_at: string | null
+          id: number
+          influencers_action: number | null
+          is_deleted: number | null
+          name: string
+          target_audience: string | null
+          team_id: number | null
+          updated_at: string | null
+          user_id: string
+          value_proposition: string | null
+        }
+        Insert: {
+          brand_competitors?: string | null
+          brand_crisis?: string | null
+          brand_differentials?: string | null
+          brand_inspiration?: string | null
+          brand_manual?: number | null
+          brand_mission?: string | null
+          brand_personality?: string | null
+          brand_pillars?: string | null
+          brand_promise?: string | null
+          brand_voice?: string | null
+          created_at?: string | null
+          id?: number
+          influencers_action?: number | null
+          is_deleted?: number | null
+          name: string
+          target_audience?: string | null
+          team_id?: number | null
+          updated_at?: string | null
+          user_id: string
+          value_proposition?: string | null
+        }
+        Update: {
+          brand_competitors?: string | null
+          brand_crisis?: string | null
+          brand_differentials?: string | null
+          brand_inspiration?: string | null
+          brand_manual?: number | null
+          brand_mission?: string | null
+          brand_personality?: string | null
+          brand_pillars?: string | null
+          brand_promise?: string | null
+          brand_voice?: string | null
+          created_at?: string | null
+          id?: number
+          influencers_action?: number | null
+          is_deleted?: number | null
+          name?: string
+          target_audience?: string | null
+          team_id?: number | null
+          updated_at?: string | null
+          user_id?: string
+          value_proposition?: string | null
+        }
+        Relationships: []
+      }
+      contents: {
+        Row: {
+          created_at: string | null
+          feeling: string | null
+          format: string | null
+          id: number
+          image_url: string | null
+          main_message: string | null
+          micro_result: string
+          next_step: string | null
+          response_ai: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          feeling?: string | null
+          format?: string | null
+          id?: number
+          image_url?: string | null
+          main_message?: string | null
+          micro_result: string
+          next_step?: string | null
+          response_ai?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          feeling?: string | null
+          format?: string | null
+          id?: number
+          image_url?: string | null
+          main_message?: string | null
+          micro_result?: string
+          next_step?: string | null
+          response_ai?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      personas: {
+        Row: {
+          age: number | null
+          challenge: string | null
+          created_at: string | null
+          id: number
+          interests: string[] | null
+          location: string | null
+          main_objective: string | null
+          name: string
+          pain_points: string[] | null
+          position_degree: string | null
+          preferred_platforms: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          age?: number | null
+          challenge?: string | null
+          created_at?: string | null
+          id?: number
+          interests?: string[] | null
+          location?: string | null
+          main_objective?: string | null
+          name: string
+          pain_points?: string[] | null
+          position_degree?: string | null
+          preferred_platforms?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          age?: number | null
+          challenge?: string | null
+          created_at?: string | null
+          id?: number
+          interests?: string[] | null
+          location?: string | null
+          main_objective?: string | null
+          name?: string
+          pain_points?: string[] | null
+          position_degree?: string | null
+          preferred_platforms?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      themes: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          hashtags: string[] | null
+          id: number
+          objectives: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+          voice_ai: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          hashtags?: string[] | null
+          id?: number
+          objectives?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+          voice_ai?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          hashtags?: string[] | null
+          id?: number
+          objectives?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          voice_ai?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

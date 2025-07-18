@@ -76,12 +76,9 @@ export default function Temas() {
       const newTheme = await supabaseService.saveTheme({
         title: formData.nome,
         description: formData.descricao,
-        colors: formData.cor_primaria,
-        voiceAI: formData.estilo || "Moderno",
-        universeTarget: formData.categoria,
-        hashtags: formData.palavras_chave.join(", "),
-        objectives: formData.categoria,
-        addInfo: formData.palavras_chave.join(", "),
+        voice_ai: formData.estilo || "Moderno",
+        hashtags: formData.palavras_chave,
+        objectives: [formData.categoria],
       });
       setThemes(prev => [...prev, newTheme]);
       
@@ -299,10 +296,10 @@ export default function Temas() {
                       <Palette className="h-5 w-5 text-white" />
                     </div>
                      <div>
-                       <CardTitle className="text-lg">{theme.title}</CardTitle>
-                        <Badge variant="secondary" className="text-xs">
-                          {theme.voiceAI}
-                        </Badge>
+                        <CardTitle className="text-lg">{theme.title}</CardTitle>
+                         <Badge variant="secondary" className="text-xs">
+                           {theme.voice_ai}
+                         </Badge>
                      </div>
                   </div>
                   <Button
@@ -318,20 +315,20 @@ export default function Temas() {
                 <p className="text-sm text-muted-foreground mb-3">
                   {theme.description}
                 </p>
-                <div className="space-y-2">
-                   {theme.voiceAI && (
+                 <div className="space-y-2">
+                   {theme.voice_ai && (
                      <div className="text-sm">
-                       <span className="font-medium">Tom:</span> {theme.voiceAI}
+                       <span className="font-medium">Tom:</span> {theme.voice_ai}
                      </div>
                    )}
-                   {theme.hashtags && (
+                   {theme.hashtags && theme.hashtags.length > 0 && (
                      <div className="text-sm">
-                       <span className="font-medium">Hashtags:</span> {theme.hashtags}
+                       <span className="font-medium">Hashtags:</span> {theme.hashtags.join(', ')}
                      </div>
                    )}
-                   {theme.objectives && (
+                   {theme.objectives && theme.objectives.length > 0 && (
                      <div className="text-sm">
-                       <span className="font-medium">Objetivos:</span> {theme.objectives}
+                       <span className="font-medium">Objetivos:</span> {theme.objectives.join(', ')}
                      </div>
                    )}
                   <div className="flex items-center gap-2 mt-3">

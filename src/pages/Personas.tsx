@@ -61,12 +61,10 @@ export default function Personas() {
     try {
       const newPersona = await supabaseService.savePersona({
         name: formData.nome,
-        age: formData.idade,
-        positionDegree: formData.profissao,
+        age: parseInt(formData.idade) || undefined,
+        position_degree: formData.profissao,
         location: formData.localizacao,
-        beliefs: formData.interesses,
-        contentHabit: formData.comportamento_digital,
-        mainObjective: formData.objetivos,
+        main_objective: formData.objetivos,
         challenge: formData.dores,
         favoriteVoice: formData.plataformas_preferidas,
         buyJourney: formData.escolaridade,
@@ -314,13 +312,13 @@ export default function Personas() {
               <CardContent className="pt-0">
                 <div className="space-y-2">
                    <div className="text-sm">
-                     <span className="font-medium">Profissão:</span> {persona.positionDegree}
+                     <span className="font-medium">Profissão:</span> {persona.position_degree}
                    </div>
                    <div className="text-sm">
                      <span className="font-medium">Localização:</span> {persona.location}
                    </div>
                    <div className="text-sm">
-                     <span className="font-medium">Objetivo:</span> {persona.mainObjective}
+                     <span className="font-medium">Objetivo:</span> {persona.main_objective}
                    </div>
                    <div className="text-sm">
                      <span className="font-medium">Desafio:</span> {persona.challenge}

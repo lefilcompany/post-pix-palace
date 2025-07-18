@@ -106,18 +106,13 @@ export default function CriarConteudo() {
 
       // Salvar conteúdo
       const newContent = await supabaseService.saveContent({
-        brandId: 1, // TODO: Implement brand selection
-        themeId: 1, // TODO: Implement theme selection
-        personaId: 1, // TODO: Implement persona selection
-        isPromote: 0,
-        visualReference: 0,
-        microResult: formData.titulo,
-        mainMessage: formData.conteudo,
+        micro_result: formData.titulo,
+        main_message: formData.conteudo,
         feeling: formData.tom,
         format: formData.plataforma,
-        nextStep: "Publicar",
-        responseAI: formData.conteudo,
-        imageUrl: imageResponse.imageUrl,
+        next_step: "Publicar",
+        response_ai: formData.conteudo,
+        image_url: imageResponse.imageUrl,
       });
 
       toast.success("Conteúdo criado com sucesso!");
