@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Tables, TablesInsert } from "@/integrations/supabase/types";
+import { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 
 // Define types for database tables and their insert types
 export type Brand = Tables<"brands">;
@@ -360,7 +360,7 @@ class SupabaseService {
     return data;
   }
 
-  async updateContent(id: number, updates: Partial<Content>): Promise<Content | null> {
+  async updateContent(id: number, updates: TablesUpdate<"contents">): Promise<Content | null> {
     const { data, error } = await supabase
       .from("contents")
       .update(updates)
