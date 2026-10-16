@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -87,6 +87,7 @@ export const TeamOnboarding = ({ isOpen, onComplete }: TeamOnboardingProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="max-w-md">
+        <DialogTitle className="sr-only">Configuração de equipe</DialogTitle>
         {step === 'welcome' && (
           <div className="flex flex-col items-center space-y-6 text-center">
             <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center">

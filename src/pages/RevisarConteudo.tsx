@@ -381,7 +381,7 @@ export default function RevisarConteudo() {
                 )}
 
                 <div className="flex gap-4">
-                  <Button onClick={() => navigate("/dashboard")} variant="outline" className="flex-1">
+                  <Button onClick={() => navigate("/")} variant="outline" className="flex-1">
                     Voltar ao Dashboard
                   </Button>
                   <Button onClick={() => navigate("/criar-conteudo")} className="flex-1">

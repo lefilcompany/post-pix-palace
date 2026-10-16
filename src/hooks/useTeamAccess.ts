@@ -1,33 +1,19 @@
-import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { teamService } from "@/services/teamService";
 
+/**
+ * Whether the signed-in user belongs to a team.
+ *
+ * Derived during render on purpose: computing `isLoading` inside an effect
+ * leaves one render where the session has resolved but the profile has not,
+ * and that frame briefly reports "no team" and bounces the user away.
+ */
 export const useTeamAccess = () => {
-  const { user, profile } = useAuth();
-  const [hasTeamAccess, setHasTeamAccess] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, profile, profileReady, loading } = useAuth();
 
-  useEffect(() => {
-    const checkTeamAccess = async () => {
-      if (!user || !profile) {
-        setHasTeamAccess(false);
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        // User has team access if they have a current_team_id
-        setHasTeamAccess(!!profile.current_team_id);
-      } catch (error) {
-        console.error("Error checking team access:", error);
-        setHasTeamAccess(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkTeamAccess();
-  }, [user, profile]);
+  // A profile row is created for every account, so an unresolved lookup means
+  // "still loading", not "no team".
+  const isLoading = loading || (!!user && !profileReady);
+  const hasTeamAccess = !!profile?.current_team_id;
 
   return { hasTeamAccess, isLoading };
 };

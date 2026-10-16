@@ -142,7 +142,7 @@ export default function CriarConteudoIA() {
 
     try {
       toast.success("Conteúdo salvo!");
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       console.error('Error saving content:', error);
       toast.error("Erro ao salvar conteúdo");

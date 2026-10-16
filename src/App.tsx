@@ -11,6 +11,11 @@ import VisualizarConteudo from "@/pages/VisualizarConteudo";
 import Marcas from "@/pages/Marcas";
 import Personas from "@/pages/Personas";
 import Temas from "@/pages/Temas";
+import CriarPlanejamento from "@/pages/CriarPlanejamento";
+import Planejamentos from "@/pages/Planejamentos";
+import RevisarConteudo from "@/pages/RevisarConteudo";
+import Revisoes from "@/pages/Revisoes";
+import Planos from "@/pages/Planos";
 import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
 
@@ -62,6 +67,48 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Temas />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/criar-planejamento" element={
+              <ProtectedRoute>
+                <Layout>
+                  <CriarPlanejamento />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/planejamentos" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Planejamentos />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/revisar-conteudo" element={
+              <ProtectedRoute>
+                <Layout>
+                  <RevisarConteudo />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/revisar-conteudo/:id" element={
+              <ProtectedRoute>
+                <Layout>
+                  <RevisarConteudo />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/revisoes" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Revisoes />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/planos" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Planos />
                 </Layout>
               </ProtectedRoute>
             } />

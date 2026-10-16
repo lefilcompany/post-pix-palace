@@ -336,7 +336,7 @@ export default function CriarPlanejamento() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/")}
                 className="flex-1"
               >
                 Cancelar

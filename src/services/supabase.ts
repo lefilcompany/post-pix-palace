@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Tables, TablesInsert } from "@/integrations/supabase/types";
+import { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 
 // Define types for database tables and their insert types
 export type Brand = Tables<"brands">;
@@ -120,29 +120,46 @@ class SupabaseService {
     return user.id;
   }
 
+  // The team the signed-in user currently belongs to (required for every action)
+  private async getCurrentTeamId(): Promise<number | null> {
+    const userId = await this.getCurrentUserId();
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("current_team_id")
+      .eq("id", userId)
+      .single();
+
+    if (error) return null;
+    return data?.current_team_id ?? null;
+  }
+
   // Brands
   async getBrands(): Promise<Brand[]> {
     const userId = await this.getCurrentUserId();
-    const { data, error } = await supabase
-      .from("brands")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("is_deleted", 0);
-    
+    const teamId = await this.getCurrentTeamId();
+
+    let query = supabase.from("brands").select("*").eq("is_deleted", 0);
+    query = teamId ? query.eq("team_id", teamId) : query.eq("user_id", userId);
+
+    const { data, error } = await query;
+
     if (error) {
       console.error("Erro ao buscar marcas:", error);
       throw error;
     }
-    
+
     return data || [];
   }
 
   async saveBrand(brand: CreateBrandData): Promise<Brand> {
     const userId = await this.getCurrentUserId();
+    const teamId = await this.getCurrentTeamId();
+    if (!teamId) throw new Error("Voce precisa estar em uma equipe para criar uma marca");
+
     const brandData: BrandInsert = {
       ...brand,
       user_id: userId,
-      team_id: 0, // Will be updated when team functionality is implemented
+      team_id: teamId,
     };
 
     const { data, error } = await supabase
@@ -174,25 +191,30 @@ class SupabaseService {
   // Themes
   async getThemes(): Promise<Theme[]> {
     const userId = await this.getCurrentUserId();
-    const { data, error } = await supabase
-      .from("themes")
-      .select("*")
-      .eq("user_id", userId);
-    
+    const teamId = await this.getCurrentTeamId();
+
+    let query = supabase.from("themes").select("*").eq("is_deleted", 0);
+    query = teamId ? query.eq("team_id", teamId) : query.eq("user_id", userId);
+
+    const { data, error } = await query;
+
     if (error) {
       console.error("Erro ao buscar temas:", error);
       throw error;
     }
-    
+
     return data || [];
   }
 
   async saveTheme(theme: CreateThemeData): Promise<Theme> {
     const userId = await this.getCurrentUserId();
+    const teamId = await this.getCurrentTeamId();
+    if (!teamId) throw new Error("Voce precisa estar em uma equipe para criar um tema");
+
     const themeData: ThemeInsert = {
       ...theme,
       user_id: userId,
-      team_id: 0, // Will be updated when team functionality is implemented
+      team_id: teamId,
     };
 
     const { data, error } = await supabase
@@ -212,7 +234,7 @@ class SupabaseService {
   async deleteTheme(themeId: number): Promise<void> {
     const { error } = await supabase
       .from("themes")
-      .delete()
+      .update({ is_deleted: 1 })
       .eq("id", themeId);
 
     if (error) {
@@ -224,25 +246,30 @@ class SupabaseService {
   // Personas
   async getPersonas(): Promise<Persona[]> {
     const userId = await this.getCurrentUserId();
-    const { data, error } = await supabase
-      .from("personas")
-      .select("*")
-      .eq("user_id", userId);
-    
+    const teamId = await this.getCurrentTeamId();
+
+    let query = supabase.from("personas").select("*").eq("is_deleted", 0);
+    query = teamId ? query.eq("team_id", teamId) : query.eq("user_id", userId);
+
+    const { data, error } = await query;
+
     if (error) {
       console.error("Erro ao buscar personas:", error);
       throw error;
     }
-    
+
     return data || [];
   }
 
   async savePersona(persona: CreatePersonaData): Promise<Persona> {
     const userId = await this.getCurrentUserId();
+    const teamId = await this.getCurrentTeamId();
+    if (!teamId) throw new Error("Voce precisa estar em uma equipe para criar uma persona");
+
     const personaData: PersonaInsert = {
       ...persona,
       user_id: userId,
-      team_id: 0, // Will be updated when team functionality is implemented
+      team_id: teamId,
     };
 
     const { data, error } = await supabase
@@ -262,7 +289,7 @@ class SupabaseService {
   async deletePersona(personaId: number): Promise<void> {
     const { error } = await supabase
       .from("personas")
-      .delete()
+      .update({ is_deleted: 1 })
       .eq("id", personaId);
 
     if (error) {
@@ -274,25 +301,34 @@ class SupabaseService {
   // Content
   async getContents(): Promise<Content[]> {
     const userId = await this.getCurrentUserId();
-    const { data, error } = await supabase
+    const teamId = await this.getCurrentTeamId();
+
+    let query = supabase
       .from("contents")
       .select("*")
-      .eq("user_id", userId);
-    
+      .eq("is_deleted", 0)
+      .order("created_at", { ascending: false });
+    query = teamId ? query.eq("team_id", teamId) : query.eq("user_id", userId);
+
+    const { data, error } = await query;
+
     if (error) {
-      console.error("Erro ao buscar conteúdos:", error);
+      console.error("Erro ao buscar conteudos:", error);
       throw error;
     }
-    
+
     return data || [];
   }
 
   async saveContent(content: CreateContentData): Promise<Content> {
     const userId = await this.getCurrentUserId();
+    const teamId = await this.getCurrentTeamId();
+    if (!teamId) throw new Error("Voce precisa estar em uma equipe para criar conteudo");
+
     const contentData: ContentInsert = {
       ...content,
       user_id: userId,
-      team_id: 0, // Will be updated when team functionality is implemented
+      team_id: teamId,
     };
 
     const { data, error } = await supabase
@@ -302,7 +338,7 @@ class SupabaseService {
       .single();
 
     if (error) {
-      console.error("Erro ao criar conteúdo:", error);
+      console.error("Erro ao criar conteudo:", error);
       throw error;
     }
 
@@ -317,14 +353,14 @@ class SupabaseService {
       .single();
 
     if (error) {
-      console.error("Erro ao buscar conteúdo:", error);
+      console.error("Erro ao buscar conteudo:", error);
       return null;
     }
 
     return data;
   }
 
-  async updateContent(id: number, updates: Partial<Content>): Promise<Content | null> {
+  async updateContent(id: number, updates: TablesUpdate<"contents">): Promise<Content | null> {
     const { data, error } = await supabase
       .from("contents")
       .update(updates)
@@ -333,7 +369,7 @@ class SupabaseService {
       .single();
 
     if (error) {
-      console.error("Erro ao atualizar conteúdo:", error);
+      console.error("Erro ao atualizar conteudo:", error);
       return null;
     }
 
@@ -343,11 +379,11 @@ class SupabaseService {
   async deleteContent(contentId: number): Promise<void> {
     const { error } = await supabase
       .from("contents")
-      .delete()
+      .update({ is_deleted: 1 })
       .eq("id", contentId);
 
     if (error) {
-      console.error("Erro ao deletar conteúdo:", error);
+      console.error("Erro ao deletar conteudo:", error);
       throw error;
     }
   }
@@ -357,38 +393,48 @@ class SupabaseService {
     const { data, error } = await supabase
       .from("plans")
       .select("*")
-      .eq("is_deleted", 0);
-    
+      .eq("is_deleted", 0)
+      .order("price", { ascending: true });
+
     if (error) {
       console.error("Erro ao buscar planos:", error);
       throw error;
     }
-    
+
     return data || [];
   }
 
   // Planning
   async getPlanning(): Promise<Planning[]> {
     const userId = await this.getCurrentUserId();
-    const { data, error } = await supabase
+    const teamId = await this.getCurrentTeamId();
+
+    let query = supabase
       .from("planning")
       .select("*, brands(name), themes(title)")
-      .eq("user_id", userId)
-      .eq("is_deleted", 0);
-    
+      .eq("is_deleted", 0)
+      .order("created_at", { ascending: false });
+    query = teamId ? query.eq("team_id", teamId) : query.eq("user_id", userId);
+
+    const { data, error } = await query;
+
     if (error) {
       console.error("Erro ao buscar planejamentos:", error);
       throw error;
     }
-    
+
     return data || [];
   }
 
   async savePlanning(planning: CreatePlanningData): Promise<Planning> {
     const userId = await this.getCurrentUserId();
+    const teamId = await this.getCurrentTeamId();
+    if (!teamId) throw new Error("Voce precisa estar em uma equipe para criar um planejamento");
+
     const planningData = {
       ...planning,
       user_id: userId,
+      team_id: teamId,
     };
 
     const { data, error } = await supabase
@@ -420,25 +466,34 @@ class SupabaseService {
   // Reviews
   async getReviews(): Promise<Review[]> {
     const userId = await this.getCurrentUserId();
-    const { data, error } = await supabase
+    const teamId = await this.getCurrentTeamId();
+
+    let query = supabase
       .from("reviews")
       .select("*, brands(name)")
-      .eq("user_id", userId)
-      .eq("is_deleted", 0);
-    
+      .eq("is_deleted", 0)
+      .order("created_at", { ascending: false });
+    query = teamId ? query.eq("team_id", teamId) : query.eq("user_id", userId);
+
+    const { data, error } = await query;
+
     if (error) {
       console.error("Erro ao buscar reviews:", error);
       throw error;
     }
-    
+
     return data || [];
   }
 
   async saveReview(review: CreateReviewData): Promise<Review> {
     const userId = await this.getCurrentUserId();
+    const teamId = await this.getCurrentTeamId();
+    if (!teamId) throw new Error("Voce precisa estar em uma equipe para revisar conteudo");
+
     const reviewData = {
       ...review,
       user_id: userId,
+      team_id: teamId,
     };
 
     const { data, error } = await supabase
@@ -475,12 +530,12 @@ class SupabaseService {
       .select("*, teams(name)")
       .eq("user_id", userId)
       .eq("is_deleted", 0);
-    
+
     if (error) {
-      console.error("Erro ao buscar solicitações:", error);
+      console.error("Erro ao buscar solicitacoes:", error);
       throw error;
     }
-    
+
     return data || [];
   }
 
@@ -499,7 +554,7 @@ class SupabaseService {
       .single();
 
     if (error) {
-      console.error("Erro ao criar solicitação:", error);
+      console.error("Erro ao criar solicitacao:", error);
       throw error;
     }
 

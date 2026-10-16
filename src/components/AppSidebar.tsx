@@ -1,5 +1,5 @@
 
-import { BarChart3, Users, Palette, Building, Home, Plus } from "lucide-react";
+import { Users, Palette, Building, Home, Plus, Calendar, CheckCircle, Crown } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
 import {
@@ -17,9 +17,12 @@ import {
 const navigationItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Criar Conteúdo", url: "/criar-conteudo", icon: Plus },
+  { title: "Planejamentos", url: "/planejamentos", icon: Calendar },
+  { title: "Revisões", url: "/revisoes", icon: CheckCircle },
   { title: "Marcas", url: "/marcas", icon: Building },
   { title: "Personas", url: "/personas", icon: Users },
   { title: "Temas", url: "/temas", icon: Palette },
+  { title: "Planos", url: "/planos", icon: Crown },
 ];
 
 export function AppSidebar() {
