@@ -4,30 +4,40 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Home, TrendingUp, Users, Palette, Building, Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { localStorageService, Content } from "@/services/localStorage";
+import { supabaseService, Content } from "@/services/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { profile } = useAuth();
   const [contents, setContents] = useState<Content[]>([]);
   const [brands, setBrands] = useState(0);
   const [themes, setThemes] = useState(0);
   const [personas, setPersonas] = useState(0);
-  
-  // Simular usuário logado - em produção viria do sistema de auth
-  const userName = "Usuário";
+
+  const userName = profile?.full_name?.split(" ")[0] || "Usuário";
 
   useEffect(() => {
-    // Carregar dados do localStorage
-    const allContents = localStorageService.getContents();
-    const allBrands = localStorageService.getBrands();
-    const allThemes = localStorageService.getThemes();
-    const allPersonas = localStorageService.getPersonas();
-    
-    setContents(allContents.slice(0, 3)); // Mostrar apenas os 3 mais recentes
-    setBrands(allBrands.length);
-    setThemes(allThemes.length);
-    setPersonas(allPersonas.length);
+    const load = async () => {
+      try {
+        const [allContents, allBrands, allThemes, allPersonas] = await Promise.all([
+          supabaseService.getContents(),
+          supabaseService.getBrands(),
+          supabaseService.getThemes(),
+          supabaseService.getPersonas(),
+        ]);
+
+        setContents(allContents.slice(0, 3));
+        setBrands(allBrands.length);
+        setThemes(allThemes.length);
+        setPersonas(allPersonas.length);
+      } catch (error) {
+        console.error("Erro ao carregar dados do painel:", error);
+      }
+    };
+
+    load();
   }, []);
 
   const metrics = [
@@ -61,7 +71,7 @@ export default function Dashboard() {
     },
   ];
 
-  const handleContentClick = (contentId: string) => {
+  const handleContentClick = (contentId: number) => {
     navigate(`/conteudo/${contentId}`);
   };
 
@@ -125,15 +135,17 @@ export default function Dashboard() {
                     onClick={() => handleContentClick(content.id)}
                   >
                     <div className="space-y-1">
-                      <p className="font-medium text-foreground">{content.titulo}</p>
+                      <p className="font-medium text-foreground">
+                        {content.main_message || content.micro_result || "Conteúdo sem título"}
+                      </p>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span>{content.plataforma}</span>
+                        <span>{content.platform || "—"}</span>
                         <span>•</span>
                         <span>{new Date(content.created_at).toLocaleDateString()}</span>
                       </div>
                     </div>
                     <Badge variant="default">
-                      Criado
+                      {content.status === "published" ? "Publicado" : "Criado"}
                     </Badge>
                   </div>
                 ))
@@ -166,21 +178,21 @@ export default function Dashboard() {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="h-20 flex-col gap-2">
+                <Link to="/criar-planejamento">
+                  <TrendingUp className="h-6 w-6" />
+                  <span>Criar Planejamento</span>
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="h-20 flex-col gap-2">
+                <Link to="/revisar-conteudo">
+                  <Palette className="h-6 w-6" />
+                  <span>Revisar Conteúdo</span>
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="h-20 flex-col gap-2">
                 <Link to="/marcas">
                   <Building className="h-6 w-6" />
                   <span>Marcas</span>
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-20 flex-col gap-2">
-                <Link to="/personas">
-                  <Users className="h-6 w-6" />
-                  <span>Personas</span>
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-20 flex-col gap-2">
-                <Link to="/temas">
-                  <Palette className="h-6 w-6" />
-                  <span>Temas</span>
                 </Link>
               </Button>
             </div>

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  profileReady: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -30,22 +31,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileReady, setProfileReady] = useState(false);
+  // The listener emits an INITIAL_SESSION event that can still carry a null
+  // session. Ignoring it until getSession() resolves keeps the team check from
+  // momentarily seeing "no user" and bouncing a hard-loaded protected page.
+  const sessionResolved = useRef(false);
 
   const refreshProfile = async (currentUser?: User | null) => {
     const userToUse = currentUser || user;
-    console.log('RefreshProfile called, user:', userToUse);
-    if (userToUse) {
-      try {
-        const userProfile = await teamService.getUserProfile();
-        console.log('Profile fetched:', userProfile);
-        setProfile(userProfile);
-      } catch (error) {
-        console.error('Error fetching profile:', error);
-        setProfile(null);
-      }
-    } else {
-      console.log('No user, setting profile to null');
+    if (!userToUse) {
       setProfile(null);
+      setProfileReady(true);
+      return;
+    }
+
+    setProfileReady(false);
+    try {
+      const userProfile = await teamService.getUserProfile();
+      setProfile(userProfile);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      setProfile(null);
+    } finally {
+      setProfileReady(true);
     }
   };
 
@@ -53,30 +61,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
+        if (event === "INITIAL_SESSION" && !session && !sessionResolved.current) {
+          return;
+        }
+
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        
+
         // Fetch profile when user logs in
         if (session?.user) {
-          console.log('Session exists, refreshing profile');
           refreshProfile(session.user);
         } else {
-          console.log('No session, setting profile to null');
           setProfile(null);
+          setProfileReady(true);
         }
       }
     );
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      sessionResolved.current = true;
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-      
+
       if (session?.user) {
         refreshProfile(session.user);
+      } else {
+        setProfileReady(true);
       }
     });
 
@@ -93,13 +106,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
     });
-    
+
     if (error) {
       toast.error("Erro ao criar conta: " + error.message);
     } else {
       toast.success("Conta criada com sucesso!");
     }
-    
+
     return { error };
   };
 
@@ -108,13 +121,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       email,
       password,
     });
-    
+
     if (error) {
       toast.error("Erro ao fazer login: " + error.message);
     } else {
       toast.success("Login realizado com sucesso!");
     }
-    
+
     return { error };
   };
 
@@ -123,6 +136,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (error) {
       toast.error("Erro ao fazer logout");
     } else {
+      setProfile(null);
+      setProfileReady(false);
       toast.success("Logout realizado com sucesso!");
     }
   };
@@ -132,6 +147,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     session,
     profile,
     loading,
+    profileReady,
     signUp,
     signIn,
     signOut,

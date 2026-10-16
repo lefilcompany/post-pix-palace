@@ -12,10 +12,9 @@ import { toast } from "sonner";
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { signIn, signUp, user, profile, refreshProfile } = useAuth();
+  const { signIn, signUp, user, profile, loading, profileReady, refreshProfile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showTeamOnboarding, setShowTeamOnboarding] = useState(false);
-  const [justLoggedIn, setJustLoggedIn] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -23,21 +22,17 @@ export default function Auth() {
     confirmPassword: "",
   });
 
-  // Check if user needs team setup after login
+  // Once a session exists, send the user to their team or open the onboarding modal.
+  // Waiting for `profile` (not just `user`) keeps the modal from flashing on first load.
   useEffect(() => {
-    console.log('Auth useEffect - user:', user, 'profile:', profile, 'justLoggedIn:', justLoggedIn);
-    if (user && profile !== null && justLoggedIn) {
-      console.log('User and profile exist after login, checking team_id:', profile.current_team_id);
-      if (!profile.current_team_id) {
-        console.log('No team_id, showing onboarding');
-        setShowTeamOnboarding(true);
-        setJustLoggedIn(false); // Reset flag
-      } else {
-        console.log('Has team_id, navigating to dashboard');
-        navigate("/");
-      }
+    if (loading || !user || !profileReady) return;
+
+    if (profile?.current_team_id) {
+      navigate("/");
+    } else {
+      setShowTeamOnboarding(true);
     }
-  }, [user, profile, justLoggedIn, navigate]);
+  }, [user, profile, profileReady, loading, navigate]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -48,12 +43,8 @@ export default function Auth() {
     if (!formData.email || !formData.password) return;
 
     setIsLoading(true);
-    const { error } = await signIn(formData.email, formData.password);
+    await signIn(formData.email, formData.password);
     setIsLoading(false);
-    
-    if (!error) {
-      setJustLoggedIn(true); // Set flag when login is successful
-    }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -70,7 +61,7 @@ export default function Auth() {
 
     setIsLoading(true);
     const { error } = await signUp(formData.email, formData.password, formData.fullName);
-    
+
     if (!error) {
       setFormData({ fullName: "", email: "", password: "", confirmPassword: "" });
     }
